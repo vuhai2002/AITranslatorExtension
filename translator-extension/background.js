@@ -1,3 +1,5 @@
+const API_KEY = "sk-proj-abc"; // Đặt API Key cố định tại đây
+
 chrome.runtime.onInstalled.addListener(() => {
     chrome.contextMenus.create({
         id: "translate",
@@ -24,24 +26,13 @@ function translateSelectedText() {
 
 chrome.runtime.onMessage.addListener((message, sender) => {
     if (message.action === "translate") {
-        chrome.storage.sync.get(["apiKey", "targetLang"], (data) => {
-            const apiKey = data.apiKey;
+        chrome.storage.sync.get(["targetLang"], (data) => {
             const targetLang = data.targetLang || "vi";
-
-            if (!apiKey) {
-                chrome.notifications.create({
-                    type: "basic",
-                    iconUrl: "icon.png",
-                    title: "⚠ Lỗi API Key",
-                    message: "Bạn chưa nhập API Key! Hãy vào popup để nhập."
-                });
-                return;
-            }
 
             fetch("https://api.openai.com/v1/chat/completions", {
                 method: "POST",
                 headers: {
-                    "Authorization": `Bearer ${apiKey}`,
+                    "Authorization": `Bearer ${API_KEY}`,
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
