@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Translator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="popup-container">
+        <h2>🌍 AI Translator</h2>
+
+        <label for="apiKey">🔑 Nhập API Key:</label>
+        <input type="password" id="apiKey" placeholder="Nhập API Key của bạn">
+        <button id="saveApiKey">Lưu API Key</button>
+
+        <label for="targetLanguage">🌐 Ngôn ngữ đích:</label>
+        <select id="targetLanguage">
+            <option value="vi">Tiếng Việt</option>
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+        </select>
+        <button id="saveSettings">Lưu Cài Đặt</button>
+
+        <p class="notice">🔔 *Bạn cần nhập API Key để sử dụng dịch vụ*</p>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
