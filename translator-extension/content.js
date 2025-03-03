@@ -14,9 +14,11 @@ document.addEventListener("mouseup", (e) => {
             const icon = document.createElement("img");
             icon.id = "translate-icon";
             icon.src = chrome.runtime.getURL("icon.png"); // Lấy icon từ extension
+
             icon.style.position = "absolute";
-            icon.style.left = `${window.scrollX + rect.right + 5}px`;
-            icon.style.top = `${window.scrollY + rect.top - 5}px`;
+            icon.style.left = `${window.scrollX + rect.left + (rect.width / 2) - 14}px`; // Căn giữa icon (icon rộng 28px)
+            icon.style.top = `${window.scrollY + rect.bottom + 5}px`; // Đặt icon ngay dưới vùng bôi đen
+
             icon.style.width = "28px"; // Điều chỉnh kích thước icon
             icon.style.height = "28px";
             icon.style.cursor = "pointer";
