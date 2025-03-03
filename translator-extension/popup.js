@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // Lưu ngôn ngữ khi người dùng chọn
     document.getElementById("saveSettings").addEventListener("click", () => {
         const lang = document.getElementById("targetLanguage").value;
         chrome.storage.sync.set({ targetLang: lang }, () => {
