@@ -27,7 +27,7 @@
     },
     "web_accessible_resources": [
         {
-            "resources": ["icon.png"],
+            "resources": ["icon.png", "spinner.gif"],
             "matches": ["<all_urls>"]
         }
     ],

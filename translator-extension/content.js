@@ -43,12 +43,16 @@ document.addEventListener("mouseup", (e) => {
                     height: rect.height
                 };
 
+                // Chuyển icon thành spinner
+                icon.src = chrome.runtime.getURL("spinner.gif"); // Cần thêm file spinner.gif vào extension
+                icon.style.animation = "spin 1s linear infinite"; // Xoay vòng
+
                 chrome.runtime.sendMessage({
                     action: "translate",
                     text: selectedText,
                     position: window.translationPosition
                 });
-                icon.remove();
+                //icon.remove();
             });
 
             // Hiệu ứng hover
@@ -72,6 +76,16 @@ document.addEventListener("mouseup", (e) => {
 
 // Xử lý đoạn dịch hiển thị và ẩn khi click ra ngoài
 chrome.runtime.onMessage.addListener((message) => {
+    if (message.action === "resetIcon") {
+        setTimeout(() => {
+            const icon = document.getElementById("translate-icon");
+            if (icon) {
+                icon.src = chrome.runtime.getURL("icon.png");
+                icon.style.animation = "none"; // Dừng xoay vòng
+            }
+        }, 100); // Delay 100ms để tránh giật lag
+    }
+
     if (message.action === "showTranslation") {
         // Xóa kết quả cũ trước khi hiển thị mới
         const oldTranslation = document.getElementById("ai-translation");
