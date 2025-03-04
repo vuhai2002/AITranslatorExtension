@@ -37,7 +37,7 @@ chrome.runtime.onMessage.addListener((message, sender) => {
                 },
                 body: JSON.stringify({
                     model: "gpt-4o-mini",
-                    messages: [{ role: "user", content: `Dịch chính xác và giữ nguyên ý nghĩa gốc của từ hoặc cụm từ sang ${targetLang}: ${message.text}` }]
+                    messages: [{ role: "user", content: `Dịch chính xác và giữ nguyên ý nghĩa gốc của từ hoặc đoạn sau sang ${targetLang}, trả về đúng kết quả: ${message.text}` }]
                 })
             })
             .then(response => response.json())
