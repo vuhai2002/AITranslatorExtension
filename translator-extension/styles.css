@@ -73,9 +73,7 @@ body {
 .logo img {
     width: 32px;
     height: 32px;
-    border-radius: 50%;
-    background-color: white;
-    padding: 3px;
+    margin-top: 4px;
 }
 
 .header h1 {
@@ -265,10 +263,6 @@ button:active {
     width: 32px;
     height: 32px;
     cursor: pointer;
-    border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    background-color: white;
-    padding: 4px;
     transition: transform 0.2s ease;
     animation: pop-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     z-index: 10000;
@@ -322,16 +316,6 @@ button:active {
     align-items: center;
     font-weight: bold;
     font-size: 14px;
-}
-
-/* Style cho logo trong tiêu đề */
-.translation-logo {
-    width: 18px;
-    height: 18px;
-    margin-right: 8px;
-    background-color: white;
-    border-radius: 50%;
-    padding: 2px;
 }
 
 /* Style cho nút đóng */

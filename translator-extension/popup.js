@@ -5,12 +5,12 @@ document.addEventListener("DOMContentLoaded", () => {
         if (data.targetLang) {
             document.getElementById("targetLanguage").value = data.targetLang;
         }
-        
+
         // Set theme
         const isDarkTheme = data.uiTheme === 'dark';
         document.getElementById("themeToggle").checked = isDarkTheme;
         applyTheme(isDarkTheme ? 'dark' : 'light');
-        
+
         // Set UI language
         const isEnglish = data.uiLang === 'en';
         document.getElementById("langToggle").checked = isEnglish;
@@ -21,12 +21,18 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("themeToggle").addEventListener("change", (e) => {
         const theme = e.target.checked ? 'dark' : 'light';
         applyTheme(theme);
+
+        // Lưu vào storage
+        chrome.storage.sync.set({ uiTheme: theme });
     });
-    
+
     // Language toggle listener
     document.getElementById("langToggle").addEventListener("change", (e) => {
         const lang = e.target.checked ? 'en' : 'vi';
         applyUILanguage(lang);
+
+        // Lưu vào storage
+        chrome.storage.sync.set({ uiLang: lang });
     });
 
     // Save settings button listener
@@ -34,14 +40,18 @@ document.addEventListener("DOMContentLoaded", () => {
         const targetLang = document.getElementById("targetLanguage").value;
         const uiTheme = document.getElementById("themeToggle").checked ? 'dark' : 'light';
         const uiLang = document.getElementById("langToggle").checked ? 'en' : 'vi';
-        
-        chrome.storage.sync.set({ 
+
+        chrome.storage.sync.set({
             targetLang: targetLang,
             uiTheme: uiTheme,
             uiLang: uiLang
         }, () => {
-            const successMessage = uiLang === 'en' ? 
-                "✅ Settings saved successfully!" : 
+            // CẬP NHẬT UI NGAY SAU KHI LƯU
+            applyTheme(uiTheme);
+            applyUILanguage(uiLang);
+
+            const successMessage = uiLang === 'en' ?
+                "✅ Settings saved successfully!" :
                 "✅ Đã lưu cài đặt thành công!";
             alert(successMessage);
         });
@@ -56,7 +66,7 @@ function applyTheme(theme) {
 // Apply the selected UI language
 function applyUILanguage(lang) {
     document.body.setAttribute('data-lang', lang);
-    
+
     // Update all translatable elements
     const translatableElements = document.querySelectorAll('[data-vi][data-en]');
     translatableElements.forEach(element => {

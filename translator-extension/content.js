@@ -1,3 +1,18 @@
+let currentTheme = 'light';
+let currentUILang = 'vi';
+
+// Lấy giá trị từ storage khi khởi tạo
+chrome.storage.sync.get(['uiTheme', 'uiLang'], (data) => {
+    currentTheme = data.uiTheme || 'light';
+    currentUILang = data.uiLang || 'vi';
+});
+
+// Lắng nghe thay đổi storage
+chrome.storage.onChanged.addListener((changes) => {
+    if (changes.uiTheme) currentTheme = changes.uiTheme.newValue;
+    if (changes.uiLang) currentUILang = changes.uiLang.newValue;
+});
+
 document.addEventListener("mouseup", (e) => {
     setTimeout(() => {
         const selection = window.getSelection();
@@ -19,14 +34,9 @@ document.addEventListener("mouseup", (e) => {
             icon.style.left = `${window.scrollX + rect.left + (rect.width / 2) - 16}px`; // Căn giữa icon
             icon.style.top = `${window.scrollY + rect.bottom + 5}px`; // Đặt icon ngay dưới vùng bôi đen
 
-            icon.style.width = "32px"; // Tăng kích thước icon
-            icon.style.height = "32px";
+            icon.style.width = "28px"; // Tăng kích thước icon
+            icon.style.height = "28px";
             icon.style.cursor = "pointer";
-            icon.style.borderRadius = "50%"; // Icon hoàn toàn tròn
-            icon.style.boxShadow = "0px 2px 8px rgba(0,0,0,0.2)";
-            icon.style.zIndex = "10000";
-            icon.style.backgroundColor = "white";
-            icon.style.padding = "4px";
             icon.style.transition = "transform 0.2s ease";
 
             document.body.appendChild(icon);
@@ -44,7 +54,7 @@ document.addEventListener("mouseup", (e) => {
                 };
 
                 // Chuyển icon thành spinner
-                icon.src = chrome.runtime.getURL("spinner.gif"); // Cần thêm file spinner.gif vào extension
+                icon.src = chrome.runtime.getURL("spinner.png");
                 icon.style.animation = "spin 1s linear infinite"; // Xoay vòng
 
                 chrome.runtime.sendMessage({
@@ -138,8 +148,8 @@ chrome.runtime.onMessage.addListener((message) => {
         div.style.top = `${position.bottom + 10}px`;
         div.style.minWidth = "300px";
         div.style.maxWidth = "500px";
-        div.style.backgroundColor = "white";
-        div.style.color = "#333";
+        div.style.backgroundColor = currentTheme === 'dark' ? '#1a1d2e' : 'white';
+        div.style.color = currentTheme === 'dark' ? '#e0e0e0' : '#333';
         div.style.fontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
         div.style.fontSize = "16px";
         div.style.lineHeight = "1.5";
