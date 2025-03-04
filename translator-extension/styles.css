@@ -17,7 +17,7 @@
 }
 
 /* Dark theme variables */
-body[data-theme="dark"] {
+#ai-translation[data-theme="dark"] {
     --bg-color: #1a1d2e;
     --text-color: #e0e0e0;
     --primary-color: #5d7aff;
