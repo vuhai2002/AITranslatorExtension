@@ -17,9 +17,35 @@
             <h1>AI Translator</h1>
         </div>
         
+        <div class="toggles">
+            <div class="theme-toggle">
+                <span class="toggle-label" data-vi="Giao diện:" data-en="Theme:"></span>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="themeToggle">
+                    <label for="themeToggle" class="toggle-track">
+                        <span class="toggle-indicator"></span>
+                        <span class="toggle-light" data-vi="Sáng" data-en="Light"></span>
+                        <span class="toggle-dark" data-vi="Tối" data-en="Dark"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="lang-toggle">
+                <span class="toggle-label" data-vi="Ngôn ngữ UI:" data-en="UI Language:"></span>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="langToggle">
+                    <label for="langToggle" class="toggle-track">
+                        <span class="toggle-indicator"></span>
+                        <span class="toggle-vi">VI</span>
+                        <span class="toggle-en">EN</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        
         <div class="content">
             <div class="language-selector">
-                <label for="targetLanguage">Ngôn ngữ đích:</label>
+                <label for="targetLanguage" data-vi="Ngôn ngữ đích:" data-en="Target language:"></label>
                 <div class="select-wrapper">
                     <select id="targetLanguage">
                         <option value="vi">Tiếng Việt</option>
@@ -65,12 +91,12 @@
             </div>
             
             <div class="instructions">
-                <p>Chọn văn bản và nhấp vào biểu tượng dịch để dịch tức thì</p>
+                <p data-vi="Chọn văn bản và nhấp vào biểu tượng dịch để dịch tức thì" data-en="Select text and click on the translate icon for instant translation"></p>
             </div>
         </div>
         
         <div class="footer">
-            <button id="saveSettings">Lưu cài đặt</button>
+            <button id="saveSettings" data-vi="Lưu cài đặt" data-en="Save Settings"></button>
         </div>
     </div>
     <script src="popup.js"></script>
