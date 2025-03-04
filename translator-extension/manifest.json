@@ -19,7 +19,7 @@
     "action": {
         "default_popup": "popup.html"
     },
-    "options_page": "options.html",
+    "options_page": "",
     "icons": {
         "16": "icon.png",
         "48": "icon.png",
@@ -39,9 +39,7 @@
             "js": [
                 "content.js"
             ],
-            "css": [
-                "styles.css"
-            ]
+            "css": []
         }
     ]
 }
