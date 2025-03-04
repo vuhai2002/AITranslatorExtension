@@ -1,6 +1,15 @@
 const API_KEY = "sk-proj-abc"; // Đặt API Key cố định tại đây
 
+// Khởi tạo extension
 chrome.runtime.onInstalled.addListener(() => {
+    // Thiết lập giá trị mặc định
+    chrome.storage.sync.set({
+        uiTheme: "light", 
+        uiLang: "vi",
+        targetLang: "vi"
+    });
+
+    // Tạo menu ngữ cảnh
     chrome.contextMenus.create({
         id: "translate",
         title: "Dịch với AI Translator",
@@ -8,6 +17,7 @@ chrome.runtime.onInstalled.addListener(() => {
     });
 });
 
+// Xử lý click vào menu ngữ cảnh
 chrome.contextMenus.onClicked.addListener((info, tab) => {
     if (info.menuItemId === "translate") {
         chrome.scripting.executeScript({
@@ -17,6 +27,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     }
 });
 
+// Hàm dịch văn bản được chọn
 function translateSelectedText() {
     const text = window.getSelection().toString();
     if (text) {
@@ -24,10 +35,17 @@ function translateSelectedText() {
     }
 }
 
+// Xử lý yêu cầu dịch
 chrome.runtime.onMessage.addListener((message, sender) => {
     if (message.action === "translate") {
-        chrome.storage.sync.get(["targetLang"], (data) => {
+        chrome.storage.sync.get(["targetLang", "uiLang"], (data) => {
             const targetLang = data.targetLang || "vi";
+            const uiLang = data.uiLang || "vi";
+
+            // Update context menu title based on UI language
+            chrome.contextMenus.update("translate", {
+                title: uiLang === "en" ? "Translate with AI Translator" : "Dịch với AI Translator"
+            });
 
             fetch("https://api.openai.com/v1/chat/completions", {
                 method: "POST",
@@ -46,7 +64,7 @@ chrome.runtime.onMessage.addListener((message, sender) => {
                     chrome.tabs.sendMessage(sender.tab.id, { 
                         action: "showTranslation", 
                         translation: data.choices[0].message.content,
-                        position: message.position // Gửi vị trí đoạn văn bản
+                        position: message.position
                     });
 
                     // Gửi tín hiệu để cập nhật lại icon sau khi dịch xong
