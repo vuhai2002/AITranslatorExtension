@@ -48,6 +48,11 @@ chrome.runtime.onMessage.addListener((message, sender) => {
                         translation: data.choices[0].message.content,
                         position: message.position // Gửi vị trí đoạn văn bản
                     });
+
+                    // Gửi tín hiệu để cập nhật lại icon sau khi dịch xong
+                    chrome.tabs.sendMessage(sender.tab.id, { 
+                        action: "resetIcon"
+                    });
                 }
             })
             .catch(error => console.error("Lỗi:", error));
