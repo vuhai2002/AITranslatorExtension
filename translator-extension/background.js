@@ -6,6 +6,25 @@ chrome.runtime.onInstalled.addListener(() => {
         title: "Dịch với AI Translator",
         contexts: ["selection"]
     });
+
+    chrome.alarms.create("keepAlive", { periodInMinutes: 5 });
+});
+
+chrome.runtime.onStartup.addListener(() => {
+    chrome.alarms.create("keepAlive", { periodInMinutes: 5 });
+});
+
+chrome.alarms.onAlarm.addListener((alarm) => {
+    if (alarm.name === "keepAlive") {
+        console.log("running");
+
+        // Ping chính extension để đảm bảo nó không bị tắt
+        chrome.runtime.sendMessage({ action: "keepAlive" }, (response) => {
+            if (chrome.runtime.lastError) {
+                console.warn("Không thể gửi ping giữ background script hoạt động.");
+            }
+        });
+    }
 });
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
@@ -14,6 +33,13 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
             target: { tabId: tab.id },
             function: translateSelectedText
         });
+    }
+});
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === "ping") {
+        console.log("running");
+        sendResponse({ status: "alive" });
     }
 });
 

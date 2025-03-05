@@ -1,5 +1,6 @@
 let currentTheme = 'light';
 let currentUILang = 'vi';
+let keepAliveInterval;
 
 // Lấy giá trị từ storage khi khởi tạo
 chrome.storage.sync.get(['uiTheme', 'uiLang'], (data) => {
@@ -12,6 +13,35 @@ chrome.storage.onChanged.addListener((changes) => {
     if (changes.uiTheme) currentTheme = changes.uiTheme.newValue;
     if (changes.uiLang) currentUILang = changes.uiLang.newValue;
 });
+
+/*****************/
+function startKeepAlive() {
+    if (!keepAliveInterval) {
+        keepAliveInterval = setInterval(() => {
+            chrome.runtime.sendMessage({ action: "ping" }, (response) => {
+                if (chrome.runtime.lastError) {
+                    console.warn("⚠️ Không thể gửi tin nhắn.");
+                    clearInterval(keepAliveInterval);
+                    keepAliveInterval = null;
+                }
+            });
+        }, 30000); // Gửi mỗi 30 giây khi user hoạt động
+    }
+}
+
+function stopKeepAlive() {
+    if (keepAliveInterval) {
+        clearInterval(keepAliveInterval);
+        keepAliveInterval = null;
+    }
+}
+
+// Chỉ kích hoạt gửi tin nhắn khi user có hoạt động
+document.addEventListener("mousemove", startKeepAlive);
+document.addEventListener("keydown", startKeepAlive);
+document.addEventListener("blur", stopKeepAlive);
+document.addEventListener("focus", startKeepAlive);
+/*****************/
 
 document.addEventListener("mouseup", (e) => {
     setTimeout(() => {

@@ -16,7 +16,7 @@
             </div>
             <h1>AI Translator</h1>
         </div>
-        
+
         <div class="toggles">
             <div class="theme-toggle">
                 <span class="toggle-label" data-vi="Giao diện:" data-en="Theme:"></span>
@@ -29,7 +29,7 @@
                     </label>
                 </div>
             </div>
-            
+
             <div class="lang-toggle">
                 <span class="toggle-label" data-vi="Ngôn ngữ UI:" data-en="UI Language:"></span>
                 <div class="toggle-switch">
@@ -49,52 +49,70 @@
                 <div class="select-wrapper">
                     <select id="targetLanguage">
                         <option value="vi">Tiếng Việt</option>
-                        <option value="en">English</option>
-                        <option value="zh">中文 (Chinese)</option>
-                        <option value="ja">日本語 (Japanese)</option>
-                        <option value="ko">한국어 (Korean)</option>
-                        <option value="fr">Français</option>
-                        <option value="de">Deutsch</option>
-                        <option value="es">Español</option>
-                        <option value="ru">Русский (Russian)</option>
-                        <option value="ar">العربية (Arabic)</option>
-                        <option value="it">Italiano</option>
-                        <option value="pt">Português</option>
-                        <option value="nl">Nederlands (Dutch)</option>
-                        <option value="sv">Svenska (Swedish)</option>
-                        <option value="pl">Polski (Polish)</option>
-                        <option value="tr">Türkçe (Turkish)</option>
-                        <option value="he">עברית (Hebrew)</option>
-                        <option value="id">Bahasa Indonesia</option>
-                        <option value="hi">हिन्दी (Hindi)</option>
-                        <option value="th">ไทย (Thai)</option>
-                        <option value="da">Dansk (Danish)</option>
-                        <option value="fi">Suomi (Finnish)</option>
-                        <option value="no">Norsk (Norwegian)</option>
-                        <option value="cs">Čeština (Czech)</option>
-                        <option value="hu">Magyar (Hungarian)</option>
-                        <option value="ro">Română (Romanian)</option>
-                        <option value="el">Ελληνικά (Greek)</option>
-                        <option value="bg">Български (Bulgarian)</option>
-                        <option value="ms">Bahasa Melayu</option>
-                        <option value="ur">اردو (Urdu)</option>
-                        <option value="fa">فارسی (Persian)</option>
-                        <option value="uk">Українська (Ukrainian)</option>
-                        <option value="sr">Српски (Serbian)</option>
-                        <option value="hr">Hrvatski (Croatian)</option>
-                        <option value="sk">Slovenčina (Slovak)</option>
-                        <option value="lt">Lietuvių (Lithuanian)</option>
-                        <option value="lv">Latviešu (Latvian)</option>
-                        <option value="et">Eesti (Estonian)</option>
+                        <option value="English">English</option>
+                        <option value="Traditional Chinese">繁體中文 (Traditional Chinese)</option>
+                        <option value="Simplified Chinese">中文 (Simplified Chinese)</option>
+                        <option value="Korean">한국어 (Korean)</option>
+                        <option value="Russian">Русский (Russian)</option>
+                        <option value="Japanese">日本語 (Japanese)</option>
+                        <option value="Thai">ไทย (Thai)</option>
+                        <option value="Lao">ລາວ (Lao)</option>
+                        <option value="Khmer">ភាសាខ្មែរ (Khmer)</option>
+                        <option value="Afrikaans">Afrikaans</option>
+                        <option value="Arabic">العربية (Arabic)</option>
+                        <option value="Bengali">বাংলা (Bengali)</option>
+                        <option value="Bulgarian">Български (Bulgarian)</option>
+                        <option value="Czech">Čeština (Czech)</option>
+                        <option value="Danish">Dansk (Danish)</option>
+                        <option value="German">Deutsch (German)</option>
+                        <option value="Greek">Ελληνικά (Greek)</option>
+                        <option value="Spanish">Español (Spanish)</option>
+                        <option value="Estonian">Eesti (Estonian)</option>
+                        <option value="Persian">فارسی (Persian)</option>
+                        <option value="Finnish">Suomi (Finnish)</option>
+                        <option value="French">Français (French)</option>
+                        <option value="Hebrew">עברית (Hebrew)</option>
+                        <option value="Hindi">हिन्दी (Hindi)</option>
+                        <option value="Croatian">Hrvatski (Croatian)</option>
+                        <option value="Hungarian">Magyar (Hungarian)</option>
+                        <option value="Indonesia">Bahasa Indonesia</option>
+                        <option value="Italian">Italiano (Italian)</option>
+                        <option value="Lithuanian">Lietuvių (Lithuanian)</option>
+                        <option value="Latvian">Latviešu (Latvian)</option>
+                        <option value="Bahasa Melayu">Bahasa Melayu</option>
+                        <option value="Maltese">Malti (Maltese)</option>
+                        <option value="Burmese">မြန်မာစာ (Burmese)</option>
+                        <option value="Dutch">Nederlands (Dutch)</option>
+                        <option value="Norwegian">Norsk (Norwegian)</option>
+                        <option value="Punjabi">ਪੰਜਾਬੀ (Punjabi)</option>
+                        <option value="Polish">Polski (Polish)</option>
+                        <option value="Portuguese">Português (Portuguese)</option>
+                        <option value="Romanian">Română (Romanian)</option>
+                        <option value="Sinhala">සිංහල (Sinhala)</option>
+                        <option value="Slovak">Slovenčina (Slovak)</option>
+                        <option value="Slovene">Slovenščina (Slovene)</option>
+                        <option value="Serbian">Српски (Serbian)</option>
+                        <option value="Swedish">Svenska (Swedish)</option>
+                        <option value="Swahili">Kiswahili (Swahili)</option>
+                        <option value="Kurdish">Kurdî (Kurdish)</option>
+                        <option value="Tamil">தமிழ் (Tamil)</option>
+                        <option value="Telugu">తెలుగు (Telugu)</option>
+                        <option value="Filipino">Filipino</option>
+                        <option value="Turkish">Türkçe (Turkish)</option>
+                        <option value="Ukrainian">Українська (Ukrainian)</option>
+                        <option value="Urdu">اردو (Urdu)</option>
+                        <option value="Hmong">Hmong</option>
+                        <option value="Malayalam">മലയാളം (Malayalam)</option>
                     </select>
                 </div>
             </div>
-            
+
             <div class="instructions">
-                <p data-vi="Chọn văn bản và nhấp vào biểu tượng dịch để dịch tức thì" data-en="Select text and click on the translate icon for instant translation"></p>
+                <p data-vi="Chọn văn bản và nhấp vào biểu tượng dịch để dịch tức thì"
+                    data-en="Select text and click on the translate icon for instant translation"></p>
             </div>
         </div>
-        
+
         <div class="footer">
             <button id="saveSettings" data-vi="Lưu cài đặt" data-en="Save Settings"></button>
         </div>
