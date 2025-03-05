@@ -90,7 +90,9 @@ body {
     border-bottom: 1px solid var(--border-color);
 }
 
-.theme-toggle, .lang-toggle, .hover-translate-toggle {
+.theme-toggle,
+.lang-toggle,
+.hover-translate-toggle {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -140,52 +142,19 @@ body {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-/*ON OFF*/
-/* Khi bật toggle */
-/*.toggle-switch input:checked + .toggle-track {
-    background: var(--primary-color);
-}*/
-
 /* Khi bật, nút tròn di chuyển sang phải */
-.toggle-switch input:checked + .toggle-track .toggle-indicator {
+.toggle-switch input:checked+.toggle-track .toggle-indicator {
     transform: translateX(30px);
 }
 
-/* Chữ ON/OFF */
-.toggle-text {
-    position: absolute;
-    font-size: 10px;
-    font-weight: bold;
-    color: white;
-    top: 50%;
-    transform: translateY(-50%);
-    transition: opacity 0.3s;
-}
-
-.toggle-text.off {
-    left: 10px;
-}
-
-.toggle-text.on {
-    right: 10px;
-    opacity: 0;
-}
-
-/* Khi bật, ẩn chữ OFF và hiện chữ ON */
-.toggle-switch input:checked + .toggle-track .toggle-text.off {
-    opacity: 0;
-}
-
-.toggle-switch input:checked + .toggle-track .toggle-text.on {
-    opacity: 1;
-}
-/*ON OFF*/
-
-input:checked + .toggle-track .toggle-indicator {
+input:checked+.toggle-track .toggle-indicator {
     transform: translateX(30px);
 }
 
-.toggle-light, .toggle-dark, .toggle-vi, .toggle-en {
+.toggle-light,
+.toggle-dark,
+.toggle-vi,
+.toggle-en {
     position: absolute;
     font-size: 10px;
     font-weight: 600;
@@ -194,18 +163,20 @@ input:checked + .toggle-track .toggle-indicator {
     color: var(--text-color);
 }
 
-.toggle-light, .toggle-vi {
+.toggle-light,
+.toggle-vi {
     left: 10px;
 }
 
-.toggle-dark, .toggle-en {
+.toggle-dark,
+.toggle-en {
     right: 8px;
 }
 
-input:checked + .toggle-track .toggle-light,
-input:not(:checked) + .toggle-track .toggle-dark,
-input:checked + .toggle-track .toggle-vi,
-input:not(:checked) + .toggle-track .toggle-en {
+input:checked+.toggle-track .toggle-light,
+input:not(:checked)+.toggle-track .toggle-dark,
+input:checked+.toggle-track .toggle-vi,
+input:not(:checked)+.toggle-track .toggle-en {
     opacity: 0.5;
 }
 
@@ -245,7 +216,7 @@ input:not(:checked) + .toggle-track .toggle-en {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.theme-toggle input:checked + .toggle-track .toggle-indicator {
+.theme-toggle input:checked+.toggle-track .toggle-indicator {
     transform: translateX(30px);
 }
 
@@ -272,11 +243,11 @@ input:not(:checked) + .toggle-track .toggle-en {
     scale: 120%;
 }
 
-.theme-toggle input:checked + .toggle-track .toggle-icon.sun {
+.theme-toggle input:checked+.toggle-track .toggle-icon.sun {
     opacity: 0;
 }
 
-.theme-toggle input:not(:checked) + .toggle-track .toggle-icon.moon {
+.theme-toggle input:not(:checked)+.toggle-track .toggle-icon.moon {
     opacity: 0;
 }
 
@@ -452,21 +423,47 @@ button:active {
 
 /* Animations */
 @keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 @keyframes pop-in {
-    0% { transform: scale(0); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 @keyframes slide-in {
-    0% { transform: translateY(-10px); opacity: 0; }
-    100% { transform: translateY(0); opacity: 1; }
+    0% {
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
