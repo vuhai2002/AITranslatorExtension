@@ -90,7 +90,7 @@ body {
     border-bottom: 1px solid var(--border-color);
 }
 
-.theme-toggle, .lang-toggle {
+.theme-toggle, .lang-toggle, .hover-translate-toggle {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -102,16 +102,19 @@ body {
     color: var(--text-color);
 }
 
+/* Kiểu dáng chung cho toggle */
 .toggle-switch {
     position: relative;
 }
 
+/* Ẩn checkbox mặc định */
 .toggle-switch input {
     opacity: 0;
     width: 0;
     height: 0;
 }
 
+/* Thanh trượt */
 .toggle-track {
     display: inline-block;
     position: relative;
@@ -121,9 +124,10 @@ body {
     border-radius: 15px;
     cursor: pointer;
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-    transition: 0.3s;
+    transition: background 0.3s;
 }
 
+/* Nút tròn di chuyển */
 .toggle-indicator {
     position: absolute;
     top: 3px;
@@ -132,9 +136,50 @@ body {
     height: 24px;
     background-color: var(--primary-color);
     border-radius: 50%;
-    transition: 0.3s;
+    transition: transform 0.3s ease;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
+
+/*ON OFF*/
+/* Khi bật toggle */
+/*.toggle-switch input:checked + .toggle-track {
+    background: var(--primary-color);
+}*/
+
+/* Khi bật, nút tròn di chuyển sang phải */
+.toggle-switch input:checked + .toggle-track .toggle-indicator {
+    transform: translateX(30px);
+}
+
+/* Chữ ON/OFF */
+.toggle-text {
+    position: absolute;
+    font-size: 10px;
+    font-weight: bold;
+    color: white;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: opacity 0.3s;
+}
+
+.toggle-text.off {
+    left: 10px;
+}
+
+.toggle-text.on {
+    right: 10px;
+    opacity: 0;
+}
+
+/* Khi bật, ẩn chữ OFF và hiện chữ ON */
+.toggle-switch input:checked + .toggle-track .toggle-text.off {
+    opacity: 0;
+}
+
+.toggle-switch input:checked + .toggle-track .toggle-text.on {
+    opacity: 1;
+}
+/*ON OFF*/
 
 input:checked + .toggle-track .toggle-indicator {
     transform: translateX(30px);
@@ -163,8 +208,6 @@ input:checked + .toggle-track .toggle-vi,
 input:not(:checked) + .toggle-track .toggle-en {
     opacity: 0.5;
 }
-
-
 
 /* Cập nhật toggle switch */
 .theme-toggle .toggle-switch {
@@ -237,16 +280,6 @@ input:not(:checked) + .toggle-track .toggle-en {
     opacity: 0;
 }
 
-/* Checkbox toggle dịch khi rê chuột */
-.hover-translate-toggle {
-    display: flex;
-    align-items: center;
-    padding: 10px 20px;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-color);
-}
-
 .hover-translate-toggle input {
     margin-right: 10px;
     transform: scale(1.2);
@@ -270,8 +303,6 @@ input:not(:checked) + .toggle-track .toggle-en {
 #successMessage.visible {
     opacity: 1;
 }
-
-
 
 /* Content section */
 .content {
