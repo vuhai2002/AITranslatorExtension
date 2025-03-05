@@ -1,6 +1,65 @@
 let currentTheme = 'light';
 let currentUILang = 'vi';
-let keepAliveInterval;
+
+chrome.storage.sync.get(["hoverTranslate", "targetLangCode"], (data) => {
+    console.log("Hover Translate Enabled:", data.hoverTranslate);
+    console.log("Target Language:", data.targetLangCode);
+
+    if (!data.hoverTranslate) return; // Nếu tắt chức năng, không làm gì cả
+
+    const targetLang = data.targetLangCode || "vi"; // Ngôn ngữ mặc định
+
+    document.addEventListener("mouseover", async (event) => {
+        const text = event.target.innerText.trim();
+        console.log("Hovered Text:", text);
+
+        if (!text || text.length > 100) return; // Chỉ dịch văn bản ngắn
+
+        // Gọi API Google Translate Web
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
+        try {
+            const response = await fetch(url);
+            const result = await response.json();
+            console.log("API Response:", result);
+
+            const translatedText = result[0][0][0];
+
+            // Hiển thị tooltip
+            showTooltip(event, translatedText);
+        } catch (error) {
+            console.error("Dịch thất bại:", error);
+        }
+    });
+});
+
+
+// Hàm hiển thị tooltip
+function showTooltip(event, text) {
+    let tooltip = document.getElementById("hover-translate-tooltip");
+    if (!tooltip) {
+        tooltip = document.createElement("div");
+        tooltip.id = "hover-translate-tooltip";
+        document.body.appendChild(tooltip);
+    }
+
+    tooltip.textContent = text;
+    tooltip.style.position = "absolute";
+    tooltip.style.top = `${event.pageY - 30}px`; // Hiển thị trên con trỏ chuột
+    tooltip.style.left = `${event.pageX}px`;
+    tooltip.style.padding = "6px 10px";
+    tooltip.style.background = "rgba(0, 0, 0, 0.75)";
+    tooltip.style.color = "#fff";
+    tooltip.style.borderRadius = "5px";
+    tooltip.style.fontSize = "14px";
+    tooltip.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.2)";
+    tooltip.style.pointerEvents = "none"; // Không ảnh hưởng đến tương tác chuột
+    tooltip.style.zIndex = "9999";
+
+    // Xóa tooltip khi di chuột đi nơi khác
+    event.target.addEventListener("mouseleave", () => {
+        tooltip.remove();
+    }, { once: true });
+}
 
 // Lấy giá trị từ storage khi khởi tạo
 chrome.storage.sync.get(['uiTheme', 'uiLang'], (data) => {
@@ -13,35 +72,6 @@ chrome.storage.onChanged.addListener((changes) => {
     if (changes.uiTheme) currentTheme = changes.uiTheme.newValue;
     if (changes.uiLang) currentUILang = changes.uiLang.newValue;
 });
-
-/*****************/
-function startKeepAlive() {
-    if (!keepAliveInterval) {
-        keepAliveInterval = setInterval(() => {
-            chrome.runtime.sendMessage({ action: "ping" }, (response) => {
-                if (chrome.runtime.lastError) {
-                    console.warn("⚠️ Không thể gửi tin nhắn.");
-                    clearInterval(keepAliveInterval);
-                    keepAliveInterval = null;
-                }
-            });
-        }, 30000); // Gửi mỗi 30 giây khi user hoạt động
-    }
-}
-
-function stopKeepAlive() {
-    if (keepAliveInterval) {
-        clearInterval(keepAliveInterval);
-        keepAliveInterval = null;
-    }
-}
-
-// Chỉ kích hoạt gửi tin nhắn khi user có hoạt động
-document.addEventListener("mousemove", startKeepAlive);
-document.addEventListener("keydown", startKeepAlive);
-document.addEventListener("blur", stopKeepAlive);
-document.addEventListener("focus", startKeepAlive);
-/*****************/
 
 document.addEventListener("mouseup", (e) => {
     setTimeout(() => {
@@ -177,7 +207,7 @@ chrome.runtime.onMessage.addListener((message) => {
         div.style.left = `${position.left}px`;
         div.style.top = `${position.bottom + 10}px`;
         div.style.minWidth = "300px";
-        div.style.maxWidth = "500px";
+        div.style.maxWidth = "600px";
         div.style.backgroundColor = currentTheme === 'dark' ? '#1a1d2e' : 'white';
         div.style.color = currentTheme === 'dark' ? '#e0e0e0' : '#333';
         div.style.fontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
@@ -246,6 +276,7 @@ chrome.runtime.onMessage.addListener((message) => {
         // Style cho content
         content.style.fontSize = "16px";
         content.style.wordBreak = "break-word"; // Xử lý từ dài
+        content.style.whiteSpace = "pre-wrap";
 
         document.body.appendChild(div);
 
