@@ -49,6 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
             hoverTranslate: settings.hoverTranslate
         }, () => {
             console.log("Settings saved:", settings);
+            
             applyTheme(settings.uiTheme);
             applyUILanguage(settings.uiLang);
 
@@ -76,9 +77,13 @@ function applyTheme(theme) {
 function applyUILanguage(lang) {
     document.body.setAttribute('data-lang', lang);
 
-    // Update all translatable elements
+    // Cập nhật tất cả các phần tử có data-vi và data-en
     const translatableElements = document.querySelectorAll('[data-vi][data-en]');
     translatableElements.forEach(element => {
-        element.textContent = element.getAttribute(`data-${lang}`);
+        if (lang === "en") {
+            element.textContent = element.getAttribute("data-en");
+        } else {
+            element.textContent = element.getAttribute("data-vi");
+        }
     });
 }

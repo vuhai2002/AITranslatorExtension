@@ -60,7 +60,7 @@ body {
 .header {
     display: flex;
     align-items: center;
-    padding: 16px 20px;
+    padding: 6px 20px;
     background: var(--header-gradient);
     color: white;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
@@ -87,7 +87,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1.2px solid var(--border-color);
 }
 
 .theme-toggle,
@@ -345,7 +345,7 @@ select:focus {
 
 /* Footer section */
 .footer {
-    padding: 14px 20px 20px;
+    padding: 0px 14px 20px;
 }
 
 button {

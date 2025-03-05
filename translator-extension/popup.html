@@ -19,7 +19,7 @@
 
         <div class="toggles">
             <div class="theme-toggle">
-                <span class="toggle-label" data-vi="Giao diện:" data-en="Theme:"></span>
+                <span class="toggle-label" data-vi="Giao diện:" data-en="Appearance:"></span>
                 <div class="toggle-switch">
                     <input type="checkbox" id="themeToggle">
                     <label for="themeToggle" class="toggle-track">
@@ -41,134 +41,116 @@
                     </label>
                 </div>
             </div>
+
+
+            <!--
             <div class="hover-translate-toggle">
                 <span class="toggle-label" data-vi="Dịch khi rê chuột:" data-en="Translate on hover:"></span>
-                <div class="checkbox-wrapper-10">
-                    <input class="tgl tgl-flip" id="hoverTranslateToggle" type="checkbox" checked />
-                    <label class="tgl-btn" data-tg-off="Nope" data-tg-on="Yeah!" for="hoverTranslateToggle"></label>
+                
+                
+                <div class="checkbox-wrapper-19">
+                    <input id="hoverTranslateToggle" type="checkbox" checked />
+                    <label class="check-box" for="hoverTranslateToggle"></label>
+                
+                
                 </div>
             </div>
+            -->
         </div>
+
         <style>
-            .checkbox-wrapper-10 .tgl {
+            .checkbox-wrapper-46 input[type="checkbox"] {
                 display: none;
+                visibility: hidden;
             }
 
-            .checkbox-wrapper-10 .tgl,
-            .checkbox-wrapper-10 .tgl:after,
-            .checkbox-wrapper-10 .tgl:before,
-            .checkbox-wrapper-10 .tgl *,
-            .checkbox-wrapper-10 .tgl *:after,
-            .checkbox-wrapper-10 .tgl *:before,
-            .checkbox-wrapper-10 .tgl+.tgl-btn {
-                box-sizing: border-box;
-            }
-
-            .checkbox-wrapper-10 .tgl::-moz-selection,
-            .checkbox-wrapper-10 .tgl:after::-moz-selection,
-            .checkbox-wrapper-10 .tgl:before::-moz-selection,
-            .checkbox-wrapper-10 .tgl *::-moz-selection,
-            .checkbox-wrapper-10 .tgl *:after::-moz-selection,
-            .checkbox-wrapper-10 .tgl *:before::-moz-selection,
-            .checkbox-wrapper-10 .tgl+.tgl-btn::-moz-selection,
-            .checkbox-wrapper-10 .tgl::selection,
-            .checkbox-wrapper-10 .tgl:after::selection,
-            .checkbox-wrapper-10 .tgl:before::selection,
-            .checkbox-wrapper-10 .tgl *::selection,
-            .checkbox-wrapper-10 .tgl *:after::selection,
-            .checkbox-wrapper-10 .tgl *:before::selection,
-            .checkbox-wrapper-10 .tgl+.tgl-btn::selection {
-                background: none;
-            }
-
-            .checkbox-wrapper-10 .tgl+.tgl-btn {
-                outline: 0;
-                display: block;
-                width: 58px;
-                height: 28px;
-                position: relative;
-                cursor: pointer;
+            .checkbox-wrapper-46 .cbx {
+                padding-top: 12px;
+                padding-bottom: 25px;
                 -webkit-user-select: none;
-                -moz-user-select: none;
-                -ms-user-select: none;
                 user-select: none;
+                cursor: pointer;
+                border-bottom: 1.2px solid var(--border-color);
             }
 
-            .checkbox-wrapper-10 .tgl+.tgl-btn:after,
-            .checkbox-wrapper-10 .tgl+.tgl-btn:before {
-                position: relative;
-                display: block;
-                content: "";
-                width: 50%;
-                height: 100%;
-            }
-
-            .checkbox-wrapper-10 .tgl+.tgl-btn:after {
-                left: 0;
-            }
-
-            .checkbox-wrapper-10 .tgl+.tgl-btn:before {
-                display: none;
-            }
-
-            .checkbox-wrapper-10 .tgl:checked+.tgl-btn:after {
-                left: 50%;
-            }
-
-            .checkbox-wrapper-10 .tgl-flip+.tgl-btn {
-                padding: 2px;
-                transition: all 0.2s ease;
-                font-family: sans-serif;
-                perspective: 100px;
-            }
-
-            .checkbox-wrapper-10 .tgl-flip+.tgl-btn:after,
-            .checkbox-wrapper-10 .tgl-flip+.tgl-btn:before {
+            .checkbox-wrapper-46 .cbx span {
                 display: inline-block;
-                transition: all 0.4s ease;
+                vertical-align: middle;
+                transform: translate3d(0, 0, 0);
+            }
+
+            .checkbox-wrapper-46 .cbx span:first-child {
+                position: relative;
+                width: 18px;
+                height: 18px;
+                border-radius: 3px;
+                transform: scale(1);
+                vertical-align: middle;
+                border: 1px solid #9098A9;
+                transition: all 0.2s ease;
+            }
+
+            .checkbox-wrapper-46 .cbx span:first-child svg {
+                position: absolute;
+                top: 3px;
+                left: 2px;
+                fill: none;
+                stroke: #FFFFFF;
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+                stroke-dasharray: 16px;
+                stroke-dashoffset: 16px;
+                transition: all 0.3s ease;
+                transition-delay: 0.1s;
+                transform: translate3d(0, 0, 0);
+            }
+
+            .checkbox-wrapper-46 .cbx span:first-child:before {
+                content: "";
                 width: 100%;
-                text-align: center;
-                position: absolute;
-                font-size: 15px;
-                line-height: 2em;
-                font-weight: bold;
-                color: #fff;
-                position: absolute;
-                top: 0;
-                left: 0;
-                -webkit-backface-visibility: hidden;
-                backface-visibility: hidden;
-                border-radius: 4px;
+                height: 100%;
+                background: #506EEC;
+                display: block;
+                transform: scale(0);
+                opacity: 1;
+                border-radius: 50%;
             }
 
-            .checkbox-wrapper-10 .tgl-flip+.tgl-btn:after {
-                content: attr(data-tg-on);
-                background: #02C66F;
-                transform: rotateY(-180deg);
+            .checkbox-wrapper-46 .cbx span:last-child {
+                padding-left: 8px;
             }
 
-            .checkbox-wrapper-10 .tgl-flip+.tgl-btn:before {
-                background: #FF3A19;
-                content: attr(data-tg-off);
+            .checkbox-wrapper-46 .cbx:hover span:first-child {
+                border-color: #506EEC;
             }
 
-            .checkbox-wrapper-10 .tgl-flip+.tgl-btn:active:before {
-                transform: rotateY(-20deg);
+            .checkbox-wrapper-46 .inp-cbx:checked+.cbx span:first-child {
+                background: #506EEC;
+                border-color: #506EEC;
+                animation: wave-46 0.4s ease;
             }
 
-            .checkbox-wrapper-10 .tgl-flip:checked+.tgl-btn:before {
-                transform: rotateY(180deg);
+            .checkbox-wrapper-46 .inp-cbx:checked+.cbx span:first-child svg {
+                stroke-dashoffset: 0;
             }
 
-            .checkbox-wrapper-10 .tgl-flip:checked+.tgl-btn:after {
-                transform: rotateY(0);
-                left: 0;
+            .checkbox-wrapper-46 .inp-cbx:checked+.cbx span:first-child:before {
+                transform: scale(3.5);
+                opacity: 0;
+                transition: all 0.6s ease;
             }
 
-            .checkbox-wrapper-10 .tgl-flip:checked+.tgl-btn:active:after {
-                transform: rotateY(20deg);
+            @keyframes wave-46 {
+                50% {
+                    transform: scale(0.9);
+                }
             }
         </style>
+
+
+
+
 
         <div class="content">
             <div class="language-selector">
@@ -231,6 +213,15 @@
                         <option value="hmn" data-name="Hmong">Hmong</option>
                         <option value="ml" data-name="Malayalam">മലയാളം (Malayalam)</option>
                     </select>
+                </div>
+
+                <div class="checkbox-wrapper-46">
+                    <input class="inp-cbx" id="hoverTranslateToggle" type="checkbox" />
+                    <label class="cbx" for="hoverTranslateToggle"><span>
+                            <svg width="12px" height="10px" viewbox="0 0 12 10">
+                                <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                            </svg></span><span data-vi="Dịch khi rê chuột" data-en="Translate on hover"></span>
+                    </label>
                 </div>
             </div>
 
