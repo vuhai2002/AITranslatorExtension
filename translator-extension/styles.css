@@ -1,3 +1,10 @@
+/* Base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 :root {
     /* Light theme variables */
     --bg-color: #ffffff;
@@ -17,7 +24,7 @@
 }
 
 /* Dark theme variables */
-#ai-translation[data-theme="dark"] {
+body[data-theme="dark"] {
     --bg-color: #1a1d2e;
     --text-color: #e0e0e0;
     --primary-color: #5d7aff;
@@ -34,14 +41,12 @@
     --hover-overlay: rgba(93, 122, 255, 0.2);
 }
 
-.popup-container {
+body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     width: 320px;
     background-color: var(--bg-color);
     color: var(--text-color);
     transition: background-color 0.3s, color 0.3s;
-    margin: 0;
-    padding: 0;
 }
 
 /* Container */

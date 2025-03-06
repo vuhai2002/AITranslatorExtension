@@ -28,8 +28,13 @@
     },
     "web_accessible_resources": [
         {
-            "resources": ["icon.png", "spinner.png"],
-            "matches": ["<all_urls>"]
+            "resources": [
+                "icon.png",
+                "spinner.png"
+            ],
+            "matches": [
+                "<all_urls>"
+            ]
         }
     ],
     "content_scripts": [
