@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
             hoverTranslate: settings.hoverTranslate
         }, () => {
             console.log("Settings saved:", settings);
-            
+
             applyTheme(settings.uiTheme);
             applyUILanguage(settings.uiLang);
 
@@ -87,3 +87,33 @@ function applyUILanguage(lang) {
         }
     });
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        const currentSite = new URL(tabs[0].url).hostname;
+
+        chrome.storage.sync.get(["blockedSites"], (data) => {
+            let blockedSites = data.blockedSites || [];
+            document.getElementById("blockHoverTranslate").checked = blockedSites.includes(currentSite);
+        });
+
+        document.getElementById("blockHoverTranslate").addEventListener("change", (e) => {
+            chrome.storage.sync.get(["blockedSites"], (data) => {
+                let blockedSites = data.blockedSites || [];
+
+                if (e.target.checked) {
+                    if (!blockedSites.includes(currentSite)) {
+                        blockedSites.push(currentSite);
+                    }
+                } else {
+                    blockedSites = blockedSites.filter(site => site !== currentSite);
+                }
+
+                chrome.storage.sync.set({ blockedSites }, () => {
+                    console.log(`Hover translation ${e.target.checked ? "blocked" : "unblocked"} for:`, currentSite);
+                    chrome.tabs.reload(tabs[0].id); // Reload lại trang để áp dụng thay đổi
+                });
+            });
+        });
+    });
+});
