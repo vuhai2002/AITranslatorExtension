@@ -8,10 +8,11 @@
         "contextMenus",
         "activeTab",
         "scripting",
-        "notifications"
+        "notifications",
+        "alarms"
     ],
     "host_permissions": [
-        "*://*/*"
+        "https://api.openai.com/*"
     ],
     "background": {
         "service_worker": "background.js"
@@ -19,6 +20,7 @@
     "action": {
         "default_popup": "popup.html"
     },
+    "options_page": "",
     "icons": {
         "16": "icon.png",
         "48": "icon.png",
@@ -26,7 +28,7 @@
     },
     "web_accessible_resources": [
         {
-            "resources": ["icon.png", "spinner.gif"],
+            "resources": ["icon.png", "spinner.png"],
             "matches": ["<all_urls>"]
         }
     ],

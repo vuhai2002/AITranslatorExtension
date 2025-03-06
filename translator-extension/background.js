@@ -38,14 +38,8 @@ function translateSelectedText() {
 // Xử lý yêu cầu dịch
 chrome.runtime.onMessage.addListener((message, sender) => {
     if (message.action === "translate") {
-        chrome.storage.sync.get(["targetLang", "uiLang"], (data) => {
-            const targetLang = data.targetLang || "vi";
-            const uiLang = data.uiLang || "vi";
-
-            // Update context menu title based on UI language
-            chrome.contextMenus.update("translate", {
-                title: uiLang === "en" ? "Translate with AI Translator" : "Dịch với AI Translator"
-            });
+        chrome.storage.sync.get(["targetLangName"], (data) => {
+            const targetLang = data.targetLangName || "vi";
 
             fetch("https://api.openai.com/v1/chat/completions", {
                 method: "POST",
@@ -55,7 +49,7 @@ chrome.runtime.onMessage.addListener((message, sender) => {
                 },
                 body: JSON.stringify({
                     model: "gpt-4o-mini",
-                    messages: [{ role: "user", content: `Translate accurately and preserve the original meaning of the word or phrase into ${targetLang}, returning only the exact result: ${message.text}` }]
+                    messages: [{ role: "user", content: `Dịch chính xác và giữ nguyên ý nghĩa gốc của từ hoặc đoạn sau sang ${targetLang}, trả về đúng kết quả. Trả lời bằng ${targetLang}: ${message.text}` }]
                 })
             })
             .then(response => response.json())

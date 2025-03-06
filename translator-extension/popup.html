@@ -16,20 +16,20 @@
             </div>
             <h1>AI Translator</h1>
         </div>
-        
+
         <div class="toggles">
             <div class="theme-toggle">
-                <span class="toggle-label" data-vi="Giao diện:" data-en="Theme:"></span>
+                <span class="toggle-label" data-vi="Giao diện:" data-en="Appearance:"></span>
                 <div class="toggle-switch">
                     <input type="checkbox" id="themeToggle">
                     <label for="themeToggle" class="toggle-track">
                         <span class="toggle-indicator"></span>
-                        <span class="toggle-light" data-vi="Sáng" data-en="Light"></span>
-                        <span class="toggle-dark" data-vi="Tối" data-en="Dark"></span>
+                        <span class="toggle-icon sun">☀️</span>
+                        <span class="toggle-icon moon">🌙</span>
                     </label>
                 </div>
             </div>
-            
+
             <div class="lang-toggle">
                 <span class="toggle-label" data-vi="Ngôn ngữ UI:" data-en="UI Language:"></span>
                 <div class="toggle-switch">
@@ -41,62 +41,215 @@
                     </label>
                 </div>
             </div>
+
+
+            <!--
+            <div class="hover-translate-toggle">
+                <span class="toggle-label" data-vi="Dịch khi rê chuột:" data-en="Translate on hover:"></span>
+                
+                
+                <div class="checkbox-wrapper-19">
+                    <input id="hoverTranslateToggle" type="checkbox" checked />
+                    <label class="check-box" for="hoverTranslateToggle"></label>
+                
+                
+                </div>
+            </div>
+            -->
         </div>
-        
+
+        <style>
+            .checkbox-wrapper-46 input[type="checkbox"] {
+                display: none;
+                visibility: hidden;
+            }
+
+            .checkbox-wrapper-46 {
+                padding-top: 12px;
+                padding-bottom: 12px;
+                user-select: none;
+                cursor: pointer;
+                border-bottom: 1.2px solid var(--border-color);
+            }
+
+            .checkbox-wrapper-46 .cbx {
+                padding-top: 8px;
+                -webkit-user-select: none;
+                user-select: none;
+                cursor: pointer;
+            }
+
+            .checkbox-wrapper-46 .cbx span {
+                display: table-cell;
+                vertical-align: middle;
+                transform: translate3d(0, 0, 0);
+            }
+
+            .checkbox-wrapper-46 .cbx span:first-child {
+                position: relative;
+                width: 18px;
+                height: 18px;
+                border-radius: 3px;
+                transform: scale(1);
+                vertical-align: middle;
+                border: 1px solid #9098A9;
+                transition: all 0.2s ease;
+            }
+
+            .checkbox-wrapper-46 .cbx span:first-child svg {
+                position: absolute;
+                top: 3px;
+                left: 2px;
+                fill: none;
+                stroke: #FFFFFF;
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+                stroke-dasharray: 16px;
+                stroke-dashoffset: 16px;
+                transition: all 0.3s ease;
+                transition-delay: 0.1s;
+                transform: translate3d(0, 0, 0);
+            }
+
+            .checkbox-wrapper-46 .cbx span:first-child:before {
+                content: "";
+                width: 100%;
+                height: 100%;
+                background: #506EEC;
+                display: block;
+                transform: scale(0);
+                opacity: 1;
+                border-radius: 50%;
+            }
+
+            .checkbox-wrapper-46 .cbx span:last-child {
+                padding-left: 8px;
+            }
+
+            .checkbox-wrapper-46 .cbx:hover span:first-child {
+                border-color: #506EEC;
+            }
+
+            .checkbox-wrapper-46 .inp-cbx:checked+.cbx span:first-child {
+                background: #506EEC;
+                border-color: #506EEC;
+                animation: wave-46 0.4s ease;
+            }
+
+            .checkbox-wrapper-46 .inp-cbx:checked+.cbx span:first-child svg {
+                stroke-dashoffset: 0;
+            }
+
+            .checkbox-wrapper-46 .inp-cbx:checked+.cbx span:first-child:before {
+                transform: scale(3.5);
+                opacity: 0;
+                transition: all 0.6s ease;
+            }
+
+            @keyframes wave-46 {
+                50% {
+                    transform: scale(0.9);
+                }
+            }
+        </style>
+
         <div class="content">
             <div class="language-selector">
                 <label for="targetLanguage" data-vi="Ngôn ngữ đích:" data-en="Target language:"></label>
                 <div class="select-wrapper">
                     <select id="targetLanguage">
-                        <option value="vi">Tiếng Việt</option>
-                        <option value="en">English</option>
-                        <option value="zh">中文 (Chinese)</option>
-                        <option value="ja">日本語 (Japanese)</option>
-                        <option value="ko">한국어 (Korean)</option>
-                        <option value="fr">Français</option>
-                        <option value="de">Deutsch</option>
-                        <option value="es">Español</option>
-                        <option value="ru">Русский (Russian)</option>
-                        <option value="ar">العربية (Arabic)</option>
-                        <option value="it">Italiano</option>
-                        <option value="pt">Português</option>
-                        <option value="nl">Nederlands (Dutch)</option>
-                        <option value="sv">Svenska (Swedish)</option>
-                        <option value="pl">Polski (Polish)</option>
-                        <option value="tr">Türkçe (Turkish)</option>
-                        <option value="he">עברית (Hebrew)</option>
-                        <option value="id">Bahasa Indonesia</option>
-                        <option value="hi">हिन्दी (Hindi)</option>
-                        <option value="th">ไทย (Thai)</option>
-                        <option value="da">Dansk (Danish)</option>
-                        <option value="fi">Suomi (Finnish)</option>
-                        <option value="no">Norsk (Norwegian)</option>
-                        <option value="cs">Čeština (Czech)</option>
-                        <option value="hu">Magyar (Hungarian)</option>
-                        <option value="ro">Română (Romanian)</option>
-                        <option value="el">Ελληνικά (Greek)</option>
-                        <option value="bg">Български (Bulgarian)</option>
-                        <option value="ms">Bahasa Melayu</option>
-                        <option value="ur">اردو (Urdu)</option>
-                        <option value="fa">فارسی (Persian)</option>
-                        <option value="uk">Українська (Ukrainian)</option>
-                        <option value="sr">Српски (Serbian)</option>
-                        <option value="hr">Hrvatski (Croatian)</option>
-                        <option value="sk">Slovenčina (Slovak)</option>
-                        <option value="lt">Lietuvių (Lithuanian)</option>
-                        <option value="lv">Latviešu (Latvian)</option>
-                        <option value="et">Eesti (Estonian)</option>
+                        <option value="vi" data-name="Vietnamese">Tiếng Việt</option>
+                        <option value="en" data-name="English">English</option>
+                        <option value="zh-TW" data-name="Traditional Chinese">繁體中文 (Traditional Chinese)</option>
+                        <option value="zh-CN" data-name="Simplified Chinese">中文 (Simplified Chinese)</option>
+                        <option value="ko" data-name="Korean">한국어 (Korean)</option>
+                        <option value="ru" data-name="Russian">Русский (Russian)</option>
+                        <option value="ja" data-name="Japanese">日本語 (Japanese)</option>
+                        <option value="th" data-name="Thai">ไทย (Thai)</option>
+                        <option value="lo" data-name="Lao">ລາວ (Lao)</option>
+                        <option value="km" data-name="Khmer">ភាសាខ្មែរ (Khmer)</option>
+                        <option value="af" data-name="Afrikaans">Afrikaans</option>
+                        <option value="ar" data-name="Arabic">العربية (Arabic)</option>
+                        <option value="bn" data-name="Bengali">বাংলা (Bengali)</option>
+                        <option value="bg" data-name="Bulgarian">Български (Bulgarian)</option>
+                        <option value="cs" data-name="Czech">Čeština (Czech)</option>
+                        <option value="da" data-name="Danish">Dansk (Danish)</option>
+                        <option value="de" data-name="German">Deutsch (German)</option>
+                        <option value="el" data-name="Greek">Ελληνικά (Greek)</option>
+                        <option value="es" data-name="Spanish">Español (Spanish)</option>
+                        <option value="et" data-name="Estonian">Eesti (Estonian)</option>
+                        <option value="fa" data-name="Persian">فارسی (Persian)</option>
+                        <option value="fi" data-name="Finnish">Suomi (Finnish)</option>
+                        <option value="fr" data-name="French">Français (French)</option>
+                        <option value="he" data-name="Hebrew">עברית (Hebrew)</option>
+                        <option value="hi" data-name="Hindi">हिन्दी (Hindi)</option>
+                        <option value="hr" data-name="Croatian">Hrvatski (Croatian)</option>
+                        <option value="hu" data-name="Hungarian">Magyar (Hungarian)</option>
+                        <option value="id" data-name="Indonesian">Bahasa Indonesia</option>
+                        <option value="it" data-name="Italian">Italiano (Italian)</option>
+                        <option value="lt" data-name="Lithuanian">Lietuvių (Lithuanian)</option>
+                        <option value="lv" data-name="Latvian">Latviešu (Latvian)</option>
+                        <option value="ms" data-name="Malay">Bahasa Melayu</option>
+                        <option value="mt" data-name="Maltese">Malti (Maltese)</option>
+                        <option value="my" data-name="Burmese">မြန်မာစာ (Burmese)</option>
+                        <option value="nl" data-name="Dutch">Nederlands (Dutch)</option>
+                        <option value="no" data-name="Norwegian">Norsk (Norwegian)</option>
+                        <option value="pa" data-name="Punjabi">ਪੰਜਾਬੀ (Punjabi)</option>
+                        <option value="pl" data-name="Polish">Polski (Polish)</option>
+                        <option value="pt" data-name="Portuguese">Português (Portuguese)</option>
+                        <option value="ro" data-name="Romanian">Română (Romanian)</option>
+                        <option value="si" data-name="Sinhala">සිංහල (Sinhala)</option>
+                        <option value="sk" data-name="Slovak">Slovenčina (Slovak)</option>
+                        <option value="sl" data-name="Slovene">Slovenščina (Slovene)</option>
+                        <option value="sr" data-name="Serbian">Српски (Serbian)</option>
+                        <option value="sv" data-name="Swedish">Svenska (Swedish)</option>
+                        <option value="sw" data-name="Swahili">Kiswahili (Swahili)</option>
+                        <option value="ku" data-name="Kurdish">Kurdî (Kurdish)</option>
+                        <option value="ta" data-name="Tamil">தமிழ் (Tamil)</option>
+                        <option value="te" data-name="Telugu">తెలుగు (Telugu)</option>
+                        <option value="fil" data-name="Filipino">Filipino</option>
+                        <option value="tr" data-name="Turkish">Türkçe (Turkish)</option>
+                        <option value="uk" data-name="Ukrainian">Українська (Ukrainian)</option>
+                        <option value="ur" data-name="Urdu">اردو (Urdu)</option>
+                        <option value="hmn" data-name="Hmong">Hmong</option>
+                        <option value="ml" data-name="Malayalam">മലയാളം (Malayalam)</option>
                     </select>
                 </div>
+
+                <div class="checkbox-wrapper-46">
+                    <input class="inp-cbx" id="hoverTranslateToggle" type="checkbox" />
+                    <label class="cbx" for="hoverTranslateToggle"><span>
+                            <svg width="12px" height="10px" viewbox="0 0 12 10">
+                                <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                            </svg></span><span data-vi="Dịch khi rê chuột" data-en="Translate on hover"></span>
+                    </label>
+                    
+                    <input class="inp-cbx" id="blockHoverTranslate" type="checkbox" />
+                    
+                    <label class="cbx" for="blockHoverTranslate">
+                        <span>
+                            <svg width="12px" height="10px" viewbox="0 0 12 10">
+                                <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                            </svg>
+                        </span>
+                        <span data-vi="Chặn dịch khi rê chuột trên trang này" data-en="Block hover translation on this site"></span>
+                    </label>
+                </div>
+                
             </div>
-            
+
             <div class="instructions">
-                <p data-vi="Chọn văn bản và nhấp vào biểu tượng dịch để dịch tức thì" data-en="Select text and click on the translate icon for instant translation"></p>
+                <p data-vi="Chọn văn bản và nhấp vào biểu tượng dịch để dịch tức thì"
+                    data-en="Select text and click on the translate icon for instant translation"></p>
+                <p>Translate model: gpt-4o mini</p>
             </div>
         </div>
-        
+
         <div class="footer">
             <button id="saveSettings" data-vi="Lưu cài đặt" data-en="Save Settings"></button>
+            <p id="successMessage" class="hidden" data-vi="✅ Đã lưu cài đặt thành công!"
+                data-en="✅ Settings saved successfully!"></p>
         </div>
     </div>
     <script src="popup.js"></script>
