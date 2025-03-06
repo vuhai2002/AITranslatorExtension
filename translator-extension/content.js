@@ -1,8 +1,10 @@
 let currentTheme = 'light';
 let currentUILang = 'vi';
-let tooltip;
-let mouseMoveTimeout;
-
+let tooltip = null;
+let lastHoveredElement = null;
+let translateTimeout = null;
+let tooltipVisible = false;
+let lastTranslatedText = { original: "", translated: "" }; // Lưu đoạn dịch gần nhất
 
 // Inject CSS vào document
 const style = document.createElement("style");
@@ -41,43 +43,79 @@ style.textContent = `
 document.head.appendChild(style);
 
 
-// Xử lý dịch khi hover
-chrome.storage.sync.get(["hoverTranslate", "targetLangCode"], (data) => {
-    console.log("Hover Translate Enabled:", data.hoverTranslate);
-    console.log("Target Language:", data.targetLangCode);
+document.addEventListener("mousemove", (event) => {
+    const target = event.target;
 
-    if (!data.hoverTranslate) return; // Nếu tắt chức năng, không làm gì cả
+    // Chỉ dịch nếu hover vào các thẻ có chữ (loại bỏ img, button, input, v.v.)
+    if (!target.matches("h1, h2, h3, h4, h5, h6, h7, a, label, em, b, i, span")) {
+        hideTooltip();
+        return;
+    }
 
-    const targetLang = data.targetLangCode || "vi"; // Ngôn ngữ mặc định
+    const text = target.innerText.trim();
+    if (!text || text.length > 150) return; // Giới hạn chữ dịch
 
-    document.addEventListener("mousemove", async (event) => {
-        const text = event.target.innerText.trim();
-        if (!text || text.length > 100) return; // Chỉ dịch văn bản ngắn
+    // Nếu di chuột trong cùng một phần tử, chỉ di chuyển tooltip mà không dịch lại
+    if (lastHoveredElement === target) {
+        updateTooltipPosition(event);
+        return;
+    }
 
-        // Kiểm tra nếu tooltip đã có, không cần gọi API liên tục
-        if (tooltip && tooltip.getAttribute("data-original-text") === text) {
-            updateTooltipPosition(event);
-            return;
-        }
+    lastHoveredElement = target;
 
-        // Gọi API Google Translate Web
-        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
-        try {
-            const response = await fetch(url);
-            const result = await response.json();
-            const translatedText = result[0][0][0];
+    // Nếu văn bản này trùng với lần dịch trước đó, hiển thị ngay lập tức
+    if (lastTranslatedText.original === text) {
+        showTooltip(event, lastTranslatedText.translated);
+        return;
+    }
 
-            // Hiển thị tooltip
-            showTooltip(event, translatedText, text);
-        } catch (error) {
-            console.error("Dịch thất bại:", error);
-        }
-    });
+    // Nếu chưa dịch, hiển thị "Translating..." rồi gọi API
+    //showTooltip(event, "Translating...");
+
+    clearTimeout(translateTimeout);
+    translateTimeout = setTimeout(() => {
+        chrome.storage.sync.get(["targetLangCode"], (data) => {
+            const targetLang = data.targetLangCode || "vi"; // Ngôn ngữ mặc định nếu chưa lưu
+            fetchTranslation(text, targetLang, event);
+        });
+    }, 100);
 });
 
-// Hàm hiển thị tooltip
-function showTooltip(event, translatedText, originalText) {
-    // Nếu tooltip chưa tồn tại, tạo mới
+async function fetchTranslation(text, targetLang, event) {
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
+
+    try {
+        const response = await fetch(url);
+        const result = await response.json();
+        const translatedText = result[0][0][0];
+
+        // Lưu bản dịch gần nhất
+        lastTranslatedText = { original: text, translated: translatedText };
+
+        // Nếu chuột vẫn trên cùng một phần tử thì hiển thị kết quả
+        if (lastHoveredElement && lastHoveredElement.innerText.trim() === text) {
+            showTooltip(event, translatedText);
+        }
+    } catch (error) {
+        console.error("Lỗi dịch:", error);
+    }
+}
+
+function updateTooltipPosition(event) {
+    if (!tooltip) return;
+
+    requestAnimationFrame(() => {
+        const tooltipWidth = tooltip.offsetWidth;
+        const tooltipHeight = tooltip.offsetHeight;
+        const offsetX = 5;
+        const offsetY = tooltipHeight + 10;
+
+        tooltip.style.left = `${event.pageX - tooltipWidth / 2}px`;
+        tooltip.style.top = `${event.pageY - offsetY}px`;
+    });
+}
+
+function showTooltip(event, translatedText) {
     if (!tooltip) {
         tooltip = document.createElement("div");
         tooltip.id = "hover-translate-tooltip";
@@ -85,35 +123,20 @@ function showTooltip(event, translatedText, originalText) {
         document.body.appendChild(tooltip);
     }
 
-    // Gán nội dung dịch và lưu văn bản gốc để tránh dịch lại liên tục
     tooltip.querySelector("#tooltip-text").textContent = translatedText;
-    tooltip.setAttribute("data-original-text", originalText);
-
-    // Cập nhật vị trí tooltip
     updateTooltipPosition(event);
 
-    // Hiển thị tooltip
     tooltip.style.opacity = "1";
+    tooltipVisible = true;
 }
 
-// Hàm cập nhật vị trí tooltip theo con trỏ chuột
-function updateTooltipPosition(event) {
-    const tooltipWidth = tooltip.offsetWidth;
-    const tooltipHeight = tooltip.offsetHeight;
-
-    const offsetX = 5; // Khoảng cách nhỏ để tránh đè lên con trỏ
-    const offsetY = tooltipHeight + 10; // Đặt tooltip ngay phía trên con trỏ
-
-    tooltip.style.left = `${event.pageX - tooltipWidth / 2}px`; // Canh giữa theo con trỏ
-    tooltip.style.top = `${event.pageY - offsetY}px`; // Đặt phía trên con trỏ
+function hideTooltip() {
+    if (tooltip && tooltipVisible) {
+        tooltip.style.opacity = "0";
+        tooltipVisible = false;
+        lastHoveredElement = null; // Reset để đảm bảo tooltip sẽ hiển thị lại khi hover lại
+    }
 }
-
-// Khi di chuột đi nơi khác, ẩn tooltip
-document.addEventListener("mouseleave", () => {
-    tooltip.remove();
-});
-
-
 
 
 
@@ -333,6 +356,7 @@ chrome.runtime.onMessage.addListener((message) => {
         content.style.fontSize = "16px";
         content.style.wordBreak = "break-word"; // Xử lý từ dài
         content.style.whiteSpace = "pre-wrap";
+        content.style.fontWeight = "400";
 
         document.body.appendChild(div);
 
