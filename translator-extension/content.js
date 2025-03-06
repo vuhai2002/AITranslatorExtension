@@ -59,41 +59,41 @@ function initHoverTranslate() {
 
 
     document.addEventListener("mousemove", (event) => {
-        const target = event.target;
 
+        const target = event.target;
+        
         // Chỉ dịch nếu hover vào các thẻ có chữ (loại bỏ img, button, input, v.v.)
-        if (!target.matches("h1, h2, h3, h4, h5, h6, h7, a, label, em, b, i, span")) {
+        if (!target.matches("h1, h2, h3, h4, h5, h6, h7, a, label, b, span")) {
             hideTooltip();
             return;
         }
-
+        
         const text = target.innerText.trim();
         if (!text || text.length > 150) return; // Giới hạn chữ dịch
-
+        
         // Nếu di chuột trong cùng một phần tử, chỉ di chuyển tooltip mà không dịch lại
         if (lastHoveredElement === target) {
             updateTooltipPosition(event);
             return;
         }
-
+        
         lastHoveredElement = target;
-
+        
         // Nếu văn bản này trùng với lần dịch trước đó, hiển thị ngay lập tức
         if (lastTranslatedText.original === text) {
             showTooltip(event, lastTranslatedText.translated);
             return;
         }
-
+        
         // Nếu chưa dịch, hiển thị "Translating..." rồi gọi API
         //showTooltip(event, "Translating...");
-
         clearTimeout(translateTimeout);
         translateTimeout = setTimeout(() => {
             chrome.storage.sync.get(["targetLangCode"], (data) => {
                 const targetLang = data.targetLangCode || "vi"; // Ngôn ngữ mặc định nếu chưa lưu
                 fetchTranslation(text, targetLang, event);
             });
-        }, 100);
+        }, 120);
     });
 
     async function fetchTranslation(text, targetLang, event) {
