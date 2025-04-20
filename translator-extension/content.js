@@ -2,9 +2,11 @@ let currentTheme = 'light';
 let currentUILang = 'vi';
 
 // Kiểm tra nếu trang bị chặn
-chrome.storage.sync.get(["blockedSites"], (data) => {
+chrome.storage.sync.get(["hoverTranslate", "blockedSites"], (data) => {
+
     const blockedSites = data.blockedSites || [];
-    if (blockedSites.some(site => window.location.hostname.includes(site))) {
+
+    if (blockedSites.some(site => window.location.hostname.includes(site)) || !data.hoverTranslate) {
         console.log("Hover dịch bị tắt trên trang này:", window.location.hostname);
         return;
     }
@@ -20,6 +22,7 @@ function initHoverTranslate() {
     let translateTimeout = null;
     let tooltipVisible = false;
     let lastTranslatedText = { original: "", translated: "" }; // Lưu đoạn dịch gần nhất
+    let lastMouseEvent = null; // Biến mới để lưu vị trí chuột mới nhất
 
     // Inject CSS vào document
     const style = document.createElement("style");
@@ -40,25 +43,29 @@ function initHoverTranslate() {
         z-index: 9999;
         opacity: 0;
         transition: opacity 0.1s ease-in-out, transform 0.1s ease-in-out;
+        pointer-events: none; /* Thêm dòng này để tooltip không can thiệp vào sự kiện chuột */
     }
 
     /* Mũi tên của tooltip */
     #tooltip-arrow {
-    position: absolute;
-    bottom: -8px; /* Để mũi tên chỉ xuống dưới */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-top: 8px solid #e3f2fd; /* Cùng màu với tooltip */
-}
-`;
+        position: absolute;
+        bottom: -8px; /* Để mũi tên chỉ xuống dưới */
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 8px solid #e3f2fd; /* Cùng màu với tooltip */
+        pointer-events: none; /* Thêm dòng này để mũi tên cũng không can thiệp vào sự kiện chuột */
+    }
+    `;
     document.head.appendChild(style);
 
 
     document.addEventListener("mousemove", (event) => {
+        // Luôn cập nhật vị trí chuột mới nhất
+        lastMouseEvent = event;
 
         const target = event.target;
         
@@ -91,7 +98,8 @@ function initHoverTranslate() {
         translateTimeout = setTimeout(() => {
             chrome.storage.sync.get(["targetLangCode"], (data) => {
                 const targetLang = data.targetLangCode || "vi"; // Ngôn ngữ mặc định nếu chưa lưu
-                fetchTranslation(text, targetLang, event);
+                // Sử dụng vị trí chuột hiện tại khi gọi API, không phải vị trí ban đầu
+                fetchTranslation(text, targetLang, lastMouseEvent);
             });
         }, 120);
     });
@@ -109,7 +117,9 @@ function initHoverTranslate() {
 
             // Nếu chuột vẫn trên cùng một phần tử thì hiển thị kết quả
             if (lastHoveredElement && lastHoveredElement.innerText.trim() === text) {
-                showTooltip(event, translatedText);
+                // Sử dụng vị trí chuột hiện tại thay vì vị trí khi bắt đầu dịch
+                const currentMouseEvent = lastMouseEvent || event;
+                showTooltip(currentMouseEvent, translatedText);
             }
         } catch (error) {
             console.error("Lỗi dịch:", error);

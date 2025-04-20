@@ -1,4 +1,4 @@
-const API_KEY = "sk-proj-abc"; // Đặt API Key cố định tại đây
+const API_KEY = ""; // Đặt API Key cố định tại đây
 
 // Khởi tạo extension
 chrome.runtime.onInstalled.addListener(() => {
