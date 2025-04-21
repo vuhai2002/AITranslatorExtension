@@ -66,35 +66,34 @@ function initHoverTranslate() {
     document.addEventListener("mousemove", (event) => {
         // Luôn cập nhật vị trí chuột mới nhất
         lastMouseEvent = event;
-
         const target = event.target;
-        
+
         // Chỉ dịch nếu hover vào các thẻ có chữ (loại bỏ img, button, input, v.v.)
         if (!target.matches("h1, h2, h3, h4, h5, h6, h7, a, label, b, span, yt-formatted-string")) {
             hideTooltip();
             return;
         }
-        
+
         const text = target.innerText.trim();
         if (!text || text.length > 150) return; // Giới hạn chữ dịch
-        
+
         // Nếu di chuột trong cùng một phần tử, chỉ di chuyển tooltip mà không dịch lại
         if (lastHoveredElement === target) {
             updateTooltipPosition(event);
             return;
         }
-        
+
         lastHoveredElement = target;
-        
+
         // Thêm sự kiện mouseout cho phần tử này để ẩn tooltip khi di chuột ra ngoài
-        target.addEventListener("mouseout", handleMouseOut, { once: true });
-        
+        target.addEventListener("mouseout", handleMouseOut, { once: true })
+
         // Nếu văn bản này trùng với lần dịch trước đó, hiển thị ngay lập tức
         if (lastTranslatedText.original === text) {
             showTooltip(event, lastTranslatedText.translated);
             return;
         }
-        
+
         // Nếu chưa dịch, gọi API sau một khoảng thời gian
         clearTimeout(translateTimeout);
         translateTimeout = setTimeout(() => {
@@ -103,7 +102,7 @@ function initHoverTranslate() {
                 // Sử dụng vị trí chuột hiện tại khi gọi API, không phải vị trí ban đầu
                 fetchTranslation(text, targetLang, lastMouseEvent);
             });
-        }, 120);
+        }, 200);
     });
 
     // Thêm hàm xử lý khi di chuột ra khỏi phần tử
@@ -113,7 +112,7 @@ function initHoverTranslate() {
         if (relatedTarget && event.currentTarget.contains(relatedTarget)) {
             return; // Nếu di chuyển vào phần tử con, không làm gì
         }
-        
+
         // Nếu con trỏ thực sự rời khỏi phần tử, ẩn tooltip
         hideTooltip();
     }
@@ -135,7 +134,7 @@ function initHoverTranslate() {
                 const currentMouseEvent = lastMouseEvent || event;
                 showTooltip(currentMouseEvent, translatedText);
             }
-        } catch (error) {}
+        } catch (error) { }
     }
 
     function updateTooltipPosition(event) {
@@ -146,16 +145,16 @@ function initHoverTranslate() {
             const tooltipHeight = tooltip.offsetHeight;
             const offsetX = 5;
             const offsetY = 10; // Khoảng cách mặc định
-            
+
             // Tính toán vị trí mặc định (hiển thị phía trên con trỏ)
             let posX = event.pageX - tooltipWidth / 2;
             let posY = event.pageY - tooltipHeight - offsetY;
-            
+
             // Kiểm tra xem tooltip có vượt khỏi cạnh trên không
             if (posY < window.scrollY) {
                 // Nếu vượt khỏi cạnh trên, hiển thị tooltip phía dưới con trỏ
                 posY = event.pageY + offsetY + 15;
-                
+
                 // Di chuyển mũi tên lên trên đầu tooltip
                 const arrow = tooltip.querySelector("#tooltip-arrow");
                 if (arrow) {
@@ -174,17 +173,17 @@ function initHoverTranslate() {
                     arrow.style.borderTop = "8px solid #e3f2fd";
                 }
             }
-            
+
             // Kiểm tra xem tooltip có vượt khỏi cạnh trái không
             if (posX < window.scrollX) {
                 posX = window.scrollX + 5;
             }
-            
+
             // Kiểm tra xem tooltip có vượt khỏi cạnh phải không
             if (posX + tooltipWidth > window.scrollX + window.innerWidth) {
                 posX = window.scrollX + window.innerWidth - tooltipWidth - 5;
             }
-            
+
             tooltip.style.left = `${posX}px`;
             tooltip.style.top = `${posY}px`;
         });
@@ -214,19 +213,17 @@ function initHoverTranslate() {
             tooltip.style.opacity = "0";
             tooltip.style.transform = "scale(0.95)";
             tooltipVisible = false;
-            
-            // Chỉ reset lastHoveredElement sau khi tooltip biến mất hoàn toàn
-            setTimeout(() => {
-                if (!tooltipVisible) {
-                    lastHoveredElement = null;
-                }
-            }, 300); // Thời gian nên khớp với thời gian transition
+
+            lastHoveredElement = null;
+            // // Chỉ reset lastHoveredElement sau khi tooltip biến mất hoàn toàn
+            // setTimeout(() => {
+            //     if (!tooltipVisible) {
+            //         lastHoveredElement = null;
+            //     }
+            // }, 300); // Thời gian nên khớp với thời gian transition
         }
     }
 }
-
-
-
 
 // Lấy giá trị từ storage khi khởi tạo
 chrome.storage.sync.get(['uiTheme', 'uiLang'], (data) => {
@@ -258,6 +255,7 @@ document.addEventListener("mouseup", (e) => {
             icon.src = chrome.runtime.getURL("icon.png"); // Lấy icon từ extension
 
             icon.style.position = "absolute";
+            //icon.style.position = "fixed";
             icon.style.left = `${window.scrollX + rect.left + (rect.width / 2) - 16}px`; // Căn giữa icon
             icon.style.top = `${window.scrollY + rect.bottom + 5}px`; // Đặt icon ngay dưới vùng bôi đen
 
@@ -265,8 +263,14 @@ document.addEventListener("mouseup", (e) => {
             icon.style.height = "28px";
             icon.style.cursor = "pointer";
             icon.style.transition = "transform 0.2s ease";
+            icon.style.zIndex   = "2147483647";
 
-            document.body.appendChild(icon);
+            //document.body.appendChild(icon);
+            const host = document.documentElement;       // <html>
+            host.appendChild(icon);                      // mount 1
+            requestAnimationFrame(() => {                // mount 2
+                if (icon.isConnected) host.appendChild(icon);
+            });
 
             // Lưu vị trí của vùng bôi đen khi click vào icon
             icon.addEventListener("click", () => {
