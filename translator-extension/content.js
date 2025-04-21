@@ -41,7 +41,8 @@ function initHoverTranslate() {
         text-align: left;
         z-index: 9999;
         opacity: 0;
-        transition: opacity 0.1s ease-in-out, transform 0.1s ease-in-out;
+        transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        transform: scale(0.95);
         pointer-events: none; /* Thêm dòng này để tooltip không can thiệp vào sự kiện chuột */
     }
 
@@ -200,15 +201,26 @@ function initHoverTranslate() {
         tooltip.querySelector("#tooltip-text").textContent = translatedText;
         updateTooltipPosition(event);
 
-        tooltip.style.opacity = "1";
-        tooltipVisible = true;
+        // Thêm setTimeout để có hiệu ứng mượt mà khi hiển thị
+        setTimeout(() => {
+            tooltip.style.opacity = "1";
+            tooltip.style.transform = "scale(1)";
+            tooltipVisible = true;
+        }, 10);
     }
 
     function hideTooltip() {
         if (tooltip && tooltipVisible) {
             tooltip.style.opacity = "0";
+            tooltip.style.transform = "scale(0.95)";
             tooltipVisible = false;
-            lastHoveredElement = null; // Reset để đảm bảo tooltip sẽ hiển thị lại khi hover lại
+            
+            // Chỉ reset lastHoveredElement sau khi tooltip biến mất hoàn toàn
+            setTimeout(() => {
+                if (!tooltipVisible) {
+                    lastHoveredElement = null;
+                }
+            }, 300); // Thời gian nên khớp với thời gian transition
         }
     }
 }
