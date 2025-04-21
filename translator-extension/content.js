@@ -332,6 +332,17 @@ chrome.runtime.onMessage.addListener((message) => {
         const oldTranslation = document.getElementById("ai-translation");
         if (oldTranslation) oldTranslation.remove();
 
+        // --- Thêm đoạn code này để xóa icon ---
+        const iconToRemove = document.getElementById("translate-icon");
+        if (iconToRemove) {
+            iconToRemove.style.transition = "opacity 0.3s ease-out"; // Thêm transition cho hiệu ứng mờ dần
+            iconToRemove.style.opacity = "0"; // Bắt đầu làm mờ icon
+            setTimeout(() => {
+                iconToRemove.remove(); // Xóa icon sau khi hiệu ứng hoàn tất
+            }, 300); // Thời gian khớp với transition
+        }
+        // --- Kết thúc đoạn code thêm ---
+
         // Sử dụng vị trí đã lưu từ click vào icon
         const position = message.position;
 
