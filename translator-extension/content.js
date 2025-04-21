@@ -85,14 +85,16 @@ function initHoverTranslate() {
         
         lastHoveredElement = target;
         
+        // Thêm sự kiện mouseout cho phần tử này để ẩn tooltip khi di chuột ra ngoài
+        target.addEventListener("mouseout", handleMouseOut, { once: true });
+        
         // Nếu văn bản này trùng với lần dịch trước đó, hiển thị ngay lập tức
         if (lastTranslatedText.original === text) {
             showTooltip(event, lastTranslatedText.translated);
             return;
         }
         
-        // Nếu chưa dịch, hiển thị "Translating..." rồi gọi API
-        //showTooltip(event, "Translating...");
+        // Nếu chưa dịch, gọi API sau một khoảng thời gian
         clearTimeout(translateTimeout);
         translateTimeout = setTimeout(() => {
             chrome.storage.sync.get(["targetLangCode"], (data) => {
@@ -102,6 +104,18 @@ function initHoverTranslate() {
             });
         }, 120);
     });
+
+    // Thêm hàm xử lý khi di chuột ra khỏi phần tử
+    function handleMouseOut(event) {
+        // Xác minh rằng con trỏ thực sự rời khỏi phần tử (không phải vào phần tử con)
+        const relatedTarget = event.relatedTarget;
+        if (relatedTarget && event.currentTarget.contains(relatedTarget)) {
+            return; // Nếu di chuyển vào phần tử con, không làm gì
+        }
+        
+        // Nếu con trỏ thực sự rời khỏi phần tử, ẩn tooltip
+        hideTooltip();
+    }
 
     async function fetchTranslation(text, targetLang, event) {
         const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
