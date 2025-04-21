@@ -1,5 +1,7 @@
 let currentTheme = 'light';
 let currentUILang = 'vi';
+// Đánh dấu xem có yêu cầu dịch đang chạy không
+let translationInProgress = false;
 
 // Kiểm tra nếu trang bị chặn
 chrome.storage.sync.get(["hoverTranslate", "blockedSites"], (data) => {
@@ -238,6 +240,8 @@ chrome.storage.onChanged.addListener((changes) => {
 });
 
 document.addEventListener("mouseup", (e) => {
+    // Nếu đang dịch thì bỏ qua, tránh tạo thêm icon
+    if (translationInProgress) return;
     setTimeout(() => {
         const selection = window.getSelection();
         const selectedText = selection.toString().trim();
@@ -274,6 +278,8 @@ document.addEventListener("mouseup", (e) => {
 
             // Lưu vị trí của vùng bôi đen khi click vào icon
             icon.addEventListener("click", () => {
+                // Không cho tạo icon khác tới khi xong
+                translationInProgress = true;
                 // Lưu lại chính xác vị trí của vùng bôi đen vào biến toàn cục
                 window.translationPosition = {
                     left: window.scrollX + rect.left,
@@ -317,15 +323,6 @@ document.addEventListener("mouseup", (e) => {
 
 // Xử lý đoạn dịch hiển thị và ẩn khi click ra ngoài
 chrome.runtime.onMessage.addListener((message) => {
-    if (message.action === "resetIcon") {
-        setTimeout(() => {
-            const icon = document.getElementById("translate-icon");
-            if (icon) {
-                icon.src = chrome.runtime.getURL("icon.png");
-                icon.style.animation = "none"; // Dừng xoay vòng
-            }
-        }, 100); // Delay 100ms để tránh giật lag
-    }
 
     if (message.action === "showTranslation") {
         // Xóa kết quả cũ trước khi hiển thị mới
@@ -342,6 +339,8 @@ chrome.runtime.onMessage.addListener((message) => {
             }, 300); // Thời gian khớp với transition
         }
         // --- Kết thúc đoạn code thêm ---
+        // Cho phép tạo icon mới lần sau
+        translationInProgress = false;
 
         // Sử dụng vị trí đã lưu từ click vào icon
         const position = message.position;
@@ -367,6 +366,7 @@ chrome.runtime.onMessage.addListener((message) => {
             div.style.opacity = "0";
             div.style.transform = "scale(0.95)";
             setTimeout(() => div.remove(), 300);
+            translationInProgress = false;
         });
 
         header.appendChild(title);
@@ -487,6 +487,8 @@ chrome.runtime.onMessage.addListener((message) => {
         setTimeout(() => {
             div.style.opacity = "1";
             div.style.transform = "scale(1)";
+            // giờ popup đã hiện xong animation → mới reset flag
+            translationInProgress = false;
         }, 10);
 
         // Xử lý click ra ngoài
