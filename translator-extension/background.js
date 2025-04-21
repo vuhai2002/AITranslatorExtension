@@ -48,7 +48,7 @@ chrome.runtime.onMessage.addListener((message, sender) => {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    model: "gpt-4o-mini",
+                    model: "gpt-4.1-nano",
                     messages: [{ role: "user", content: `Dịch chính xác và giữ nguyên ý nghĩa gốc của từ hoặc đoạn sau sang ${targetLang}, trả về đúng kết quả. Trả lời bằng ${targetLang}: ${message.text}` }]
                 })
             })
@@ -67,7 +67,7 @@ chrome.runtime.onMessage.addListener((message, sender) => {
                     });
                 }
             })
-            .catch(error => console.error("Lỗi:", error));
+            .catch(error);
         });
     }
 });

@@ -7,7 +7,6 @@ chrome.storage.sync.get(["hoverTranslate", "blockedSites"], (data) => {
     const blockedSites = data.blockedSites || [];
 
     if (blockedSites.some(site => window.location.hostname.includes(site)) || !data.hoverTranslate) {
-        console.log("Hover dịch bị tắt trên trang này:", window.location.hostname);
         return;
     }
 
@@ -24,7 +23,7 @@ function initHoverTranslate() {
     let lastTranslatedText = { original: "", translated: "" }; // Lưu đoạn dịch gần nhất
     let lastMouseEvent = null; // Biến mới để lưu vị trí chuột mới nhất
 
-    // Inject CSS vào document
+    // Cập nhật CSS cho tooltip và mũi tên
     const style = document.createElement("style");
     style.textContent = `
     #hover-translate-tooltip {
@@ -70,7 +69,7 @@ function initHoverTranslate() {
         const target = event.target;
         
         // Chỉ dịch nếu hover vào các thẻ có chữ (loại bỏ img, button, input, v.v.)
-        if (!target.matches("h1, h2, h3, h4, h5, h6, h7, a, label, b, span")) {
+        if (!target.matches("h1, h2, h3, h4, h5, h6, h7, a, label, b, span, yt-formatted-string")) {
             hideTooltip();
             return;
         }
@@ -121,9 +120,7 @@ function initHoverTranslate() {
                 const currentMouseEvent = lastMouseEvent || event;
                 showTooltip(currentMouseEvent, translatedText);
             }
-        } catch (error) {
-            console.error("Lỗi dịch:", error);
-        }
+        } catch (error) {}
     }
 
     function updateTooltipPosition(event) {
@@ -133,10 +130,48 @@ function initHoverTranslate() {
             const tooltipWidth = tooltip.offsetWidth;
             const tooltipHeight = tooltip.offsetHeight;
             const offsetX = 5;
-            const offsetY = tooltipHeight + 10;
-
-            tooltip.style.left = `${event.pageX - tooltipWidth / 2}px`;
-            tooltip.style.top = `${event.pageY - offsetY}px`;
+            const offsetY = 10; // Khoảng cách mặc định
+            
+            // Tính toán vị trí mặc định (hiển thị phía trên con trỏ)
+            let posX = event.pageX - tooltipWidth / 2;
+            let posY = event.pageY - tooltipHeight - offsetY;
+            
+            // Kiểm tra xem tooltip có vượt khỏi cạnh trên không
+            if (posY < window.scrollY) {
+                // Nếu vượt khỏi cạnh trên, hiển thị tooltip phía dưới con trỏ
+                posY = event.pageY + offsetY + 15;
+                
+                // Di chuyển mũi tên lên trên đầu tooltip
+                const arrow = tooltip.querySelector("#tooltip-arrow");
+                if (arrow) {
+                    arrow.style.top = "-8px";
+                    arrow.style.bottom = "auto";
+                    arrow.style.borderTop = "none";
+                    arrow.style.borderBottom = "8px solid #e3f2fd";
+                }
+            } else {
+                // Trường hợp mặc định, hiển thị tooltip phía trên con trỏ
+                const arrow = tooltip.querySelector("#tooltip-arrow");
+                if (arrow) {
+                    arrow.style.bottom = "-8px";
+                    arrow.style.top = "auto";
+                    arrow.style.borderBottom = "none";
+                    arrow.style.borderTop = "8px solid #e3f2fd";
+                }
+            }
+            
+            // Kiểm tra xem tooltip có vượt khỏi cạnh trái không
+            if (posX < window.scrollX) {
+                posX = window.scrollX + 5;
+            }
+            
+            // Kiểm tra xem tooltip có vượt khỏi cạnh phải không
+            if (posX + tooltipWidth > window.scrollX + window.innerWidth) {
+                posX = window.scrollX + window.innerWidth - tooltipWidth - 5;
+            }
+            
+            tooltip.style.left = `${posX}px`;
+            tooltip.style.top = `${posY}px`;
         });
     }
 
