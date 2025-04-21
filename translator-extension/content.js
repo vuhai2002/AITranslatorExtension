@@ -312,7 +312,7 @@ document.addEventListener("mouseup", (e) => {
                 }
             }, { once: true });
         }
-    }, 100);
+    }, 1);
 });
 
 // Xử lý đoạn dịch hiển thị và ẩn khi click ra ngoài
