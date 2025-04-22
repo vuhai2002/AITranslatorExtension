@@ -445,7 +445,7 @@ chrome.runtime.onMessage.addListener((message) => {
         div.style.top = `${position.bottom + 10}px`;
         div.style.minWidth = "300px";
         div.style.maxWidth = "600px";
-        div.style.backgroundColor = currentTheme === 'dark' ? '#1a1d2e' : 'white';
+        div.style.backgroundColor = currentTheme === 'dark' ? '#152039' : 'white';
         div.style.color = currentTheme === 'dark' ? '#e0e0e0' : '#333';
         div.style.fontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
         div.style.fontSize = "16px";
