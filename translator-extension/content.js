@@ -222,7 +222,7 @@ function initHoverTranslate() {
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
-                    'Ocp-Apim-Subscription-Key': 'BxK8YQGyYNEgerRBjB6N0TjqMsY8tM8eSIU5MaDOtVARIF64N4chJQQJ99BDACqBBLyXJ3w3AAAbACOGFnG3',
+                    'Ocp-Apim-Subscription-Key': 'YOUR_SUBSCRIPTION_KEY',
                     'Ocp-Apim-Subscription-Region': 'southeastasia',
                     'Content-Type': 'application/json'
                 },
