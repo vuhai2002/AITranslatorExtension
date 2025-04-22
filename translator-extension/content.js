@@ -1,7 +1,6 @@
 let currentTheme = 'light';
 let currentUILang = 'vi';
-// Đánh dấu xem có yêu cầu dịch đang chạy không
-let translationInProgress = false;
+let translationInProgress = false; // Đánh dấu xem có yêu cầu dịch đang chạy không
 
 const _spinnerKeyframes = document.createElement("style");
 _spinnerKeyframes.textContent = `
@@ -10,6 +9,7 @@ _spinnerKeyframes.textContent = `
   100% { transform: rotate(360deg); }
 }
 `;
+
 document.head.appendChild(_spinnerKeyframes);
 
 // Kiểm tra nếu trang bị chặn
@@ -52,7 +52,7 @@ function initHoverTranslate() {
         text-align: left;
         z-index: 9999;
         opacity: 0;
-        transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
         transform: scale(0.95);
         pointer-events: none; /* Thêm dòng này để tooltip không can thiệp vào sự kiện chuột */
     }
@@ -114,6 +114,13 @@ function initHoverTranslate() {
                 fetchTranslation(text, targetLang, lastMouseEvent);
             });
         }, 200);
+    });
+
+    document.documentElement.addEventListener('mouseleave', () => {
+        // Khi chuột rời khỏi toàn bộ trang, ẩn tooltip và xóa timeout
+        hideTooltip();
+        clearTimeout(translateTimeout);
+        lastHoveredElement = null; // Đảm bảo reset
     });
 
     // Thêm hàm xử lý khi di chuột ra khỏi phần tử
