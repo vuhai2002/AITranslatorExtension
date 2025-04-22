@@ -4,9 +4,89 @@ let translationInProgress = false; // Đánh dấu xem có yêu cầu dịch đa
 
 const _spinnerKeyframes = document.createElement("style");
 _spinnerKeyframes.textContent = `
-@keyframes spin {
-  0%   { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.lds-spinner,
+.lds-spinner div,
+.lds-spinner div:after {
+  box-sizing: border-box;
+}
+.lds-spinner {
+  color: currentColor;
+  display: inline-block;
+  position: relative;
+  width: 28px;
+  height: 28px;
+  color: #4a6bef;
+}
+.lds-spinner div {
+  transform-origin: 14px 14px;
+  animation: lds-spinner 1.2s linear infinite;
+}
+.lds-spinner div:after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 1.12px;
+  left: 12.88px;
+  width: 2.24px;
+  height: 6.16px;
+  border-radius: 20%;
+  background: currentColor;
+}
+.lds-spinner div:nth-child(1) {
+  transform: rotate(0deg);
+  animation-delay: -1.1s;
+}
+.lds-spinner div:nth-child(2) {
+  transform: rotate(30deg);
+  animation-delay: -1s;
+}
+.lds-spinner div:nth-child(3) {
+  transform: rotate(60deg);
+  animation-delay: -0.9s;
+}
+.lds-spinner div:nth-child(4) {
+  transform: rotate(90deg);
+  animation-delay: -0.8s;
+}
+.lds-spinner div:nth-child(5) {
+  transform: rotate(120deg);
+  animation-delay: -0.7s;
+}
+.lds-spinner div:nth-child(6) {
+  transform: rotate(150deg);
+  animation-delay: -0.6s;
+}
+.lds-spinner div:nth-child(7) {
+  transform: rotate(180deg);
+  animation-delay: -0.5s;
+}
+.lds-spinner div:nth-child(8) {
+  transform: rotate(210deg);
+  animation-delay: -0.4s;
+}
+.lds-spinner div:nth-child(9) {
+  transform: rotate(240deg);
+  animation-delay: -0.3s;
+}
+.lds-spinner div:nth-child(10) {
+  transform: rotate(270deg);
+  animation-delay: -0.2s;
+}
+.lds-spinner div:nth-child(11) {
+  transform: rotate(300deg);
+  animation-delay: -0.1s;
+}
+.lds-spinner div:nth-child(12) {
+  transform: rotate(330deg);
+  animation-delay: 0s;
+}
+@keyframes lds-spinner {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 `;
 
@@ -281,21 +361,22 @@ document.addEventListener("mouseup", (e) => {
         const range = selection.getRangeAt(0);
         const rect = range.getBoundingClientRect(); // Lấy vị trí của vùng bôi đen
 
-        const icon = document.createElement("img");
+        const icon = document.createElement("div"); // Changed from img to div
         icon.id = "translate-icon";
-        icon.src = chrome.runtime.getURL("icon.png"); // Lấy icon từ extension
-
         icon.style.position = "absolute";
-        icon.style.left = `${window.scrollX + rect.left + (rect.width / 2) - 16}px`; // Căn giữa icon
-        icon.style.top = `${window.scrollY + rect.bottom + 5}px`; // Đặt icon ngay dưới vùng bôi đen
-        icon.style.width = "28px"; // Tăng kích thước icon
+        icon.style.left = `${window.scrollX + rect.left + (rect.width / 2) - 14}px`; // Centered
+        icon.style.top = `${window.scrollY + rect.bottom + 5}px`;
+        icon.style.width = "28px";
         icon.style.height = "28px";
         icon.style.cursor = "pointer";
         icon.style.transition = "transform 0.2s ease, opacity 0.15s ease";
         icon.style.zIndex = "2147483647";
         icon.style.opacity = "0.8";
+        icon.style.backgroundImage = `url(${chrome.runtime.getURL("icon.png")})`; // Use background image instead
+        icon.style.backgroundSize = "cover";
+        icon.style.backgroundPosition = "center";
 
-        // Append the icon (simplified)
+        // Append the icon
         document.documentElement.appendChild(icon);
 
         // Fade icon in
@@ -321,10 +402,23 @@ document.addEventListener("mouseup", (e) => {
                 height: rect.height
             };
 
-            // Change to spinner
-            icon.src = chrome.runtime.getURL("spinner.png");
-            icon.style.animation = "spin 1s linear infinite";
-            _spinnerKeyframes.isConnected || document.head.appendChild(_spinnerKeyframes); // Ensure keyframes are present
+            // Remove the image and replace with a CSS spinner
+            icon.innerHTML = ''; // Clear the image
+            icon.style.backgroundImage = 'none';
+            
+            // Create the spinner HTML structure
+            const spinner = document.createElement('div');
+            spinner.className = 'lds-spinner';
+            // Create the 12 divs needed for the spinner
+            for (let i = 0; i < 12; i++) {
+                const div = document.createElement('div');
+                spinner.appendChild(div);
+            }
+            
+            icon.appendChild(spinner);
+            
+            // Ensure spinner styles are injected
+            _spinnerKeyframes.isConnected || document.head.appendChild(_spinnerKeyframes);
 
             chrome.runtime.sendMessage({
                 action: "translate",
@@ -394,6 +488,7 @@ chrome.runtime.onMessage.addListener((message) => {
             }, 150); // Thời gian khớp với transition
         }
         // --- Kết thúc đoạn code thêm ---
+
         // Cho phép tạo icon mới lần sau
         //translationInProgress = false;
 
