@@ -216,12 +216,24 @@ function initHoverTranslate() {
     }
 
     async function fetchTranslation(text, targetLang, event) {
-        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
+        const url = `https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=${targetLang}`;
 
         try {
-            const response = await fetch(url);
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Ocp-Apim-Subscription-Key': 'BxK8YQGyYNEgerRBjB6N0TjqMsY8tM8eSIU5MaDOtVARIF64N4chJQQJ99BDACqBBLyXJ3w3AAAbACOGFnG3',
+                    'Ocp-Apim-Subscription-Region': 'southeastasia',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify([{
+                    'text': text
+                }])
+            });
+
             const result = await response.json();
-            const translatedText = result[0][0][0];
+
+            const translatedText = result[0].translations[0].text;
 
             // Lưu bản dịch gần nhất
             lastTranslatedText = { original: text, translated: translatedText };
