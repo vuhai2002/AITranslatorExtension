@@ -3,6 +3,15 @@ let currentUILang = 'vi';
 // Đánh dấu xem có yêu cầu dịch đang chạy không
 let translationInProgress = false;
 
+const _spinnerKeyframes = document.createElement("style");
+_spinnerKeyframes.textContent = `
+@keyframes spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+`;
+document.head.appendChild(_spinnerKeyframes);
+
 // Kiểm tra nếu trang bị chặn
 chrome.storage.sync.get(["hoverTranslate", "blockedSites"], (data) => {
 
@@ -241,85 +250,138 @@ chrome.storage.onChanged.addListener((changes) => {
 
 document.addEventListener("mouseup", (e) => {
     // Nếu đang dịch thì bỏ qua, tránh tạo thêm icon
-    if (translationInProgress) return;
+    if (translationInProgress) {
+        console.log('[MOUSEUP-IGNORE] Translation already in progress.');
+        return;
+    }
+
+    // Use a minimal timeout to allow the browser to finalize the selection state.
     setTimeout(() => {
         const selection = window.getSelection();
         const selectedText = selection.toString().trim();
+
+        // 1. Check if the selection is collapsed (just a cursor) OR if the trimmed text is empty.
+        //    If either is true, it's not a valid selection for translation.
+        if (selection.isCollapsed || selectedText.length === 0) {
+            // Optional: Log why we are ignoring this mouseup event, if needed for debugging.
+            console.log('[MOUSEUP-IGNORE] Selection is collapsed or empty.');
+
+            // Attempt to remove any existing icon if the selection is lost
+            const oldIcon = document.getElementById("translate-icon");
+            if (oldIcon && e.target !== oldIcon) { // Only remove if the click wasn't ON the icon itself
+                oldIcon.remove();
+            }
+            return; // Exit early, do nothing further.
+        }
+
+        // 2. Log ONLY when a valid selection is detected.
+        console.log('[MOUSEUP] User selected text. Checking selection -> Valid selection found.');
 
         // Xóa icon cũ nếu có
         const oldIcon = document.getElementById("translate-icon");
         if (oldIcon) oldIcon.remove();
 
-        if (selectedText.length > 0) {
-            const range = selection.getRangeAt(0);
-            const rect = range.getBoundingClientRect(); // Lấy vị trí của vùng bôi đen
+        const range = selection.getRangeAt(0);
+        const rect = range.getBoundingClientRect(); // Lấy vị trí của vùng bôi đen
 
-            const icon = document.createElement("img");
-            icon.id = "translate-icon";
-            icon.src = chrome.runtime.getURL("icon.png"); // Lấy icon từ extension
+        const icon = document.createElement("img");
+        console.log('[CREATE-ICON] Icon created and displayed at selection.');
+        icon.id = "translate-icon";
+        icon.src = chrome.runtime.getURL("icon.png"); // Lấy icon từ extension
 
-            icon.style.position = "absolute";
-            //icon.style.position = "fixed";
-            icon.style.left = `${window.scrollX + rect.left + (rect.width / 2) - 16}px`; // Căn giữa icon
-            icon.style.top = `${window.scrollY + rect.bottom + 5}px`; // Đặt icon ngay dưới vùng bôi đen
+        icon.style.position = "absolute";
+        icon.style.left = `${window.scrollX + rect.left + (rect.width / 2) - 16}px`; // Căn giữa icon
+        icon.style.top = `${window.scrollY + rect.bottom + 5}px`; // Đặt icon ngay dưới vùng bôi đen
 
-            icon.style.width = "28px"; // Tăng kích thước icon
-            icon.style.height = "28px";
-            icon.style.cursor = "pointer";
-            icon.style.transition = "transform 0.2s ease";
-            icon.style.zIndex   = "2147483647";
+        icon.style.width = "28px"; // Tăng kích thước icon
+        icon.style.height = "28px";
+        icon.style.cursor = "pointer";
+        icon.style.transition = "transform 0.2s ease, opacity 0.2s ease";
+        icon.style.zIndex = "2147483647";
+        icon.style.opacity = "0";
 
-            //document.body.appendChild(icon);
-            const host = document.documentElement;       // <html>
-            host.appendChild(icon);                      // mount 1
-            requestAnimationFrame(() => {                // mount 2
-                if (icon.isConnected) host.appendChild(icon);
+        // Append the icon (simplified)
+        document.documentElement.appendChild(icon);
+
+        // Fade icon in
+        requestAnimationFrame(() => {
+            icon.style.opacity = "1";
+        });
+
+        // --- Icon Event Listeners ---
+
+        icon.addEventListener("click", (clickEvent) => {
+            clickEvent.stopPropagation(); // Prevent this click from triggering the document's click listener below
+
+            if (translationInProgress) return; // Double-check
+            console.log('[ICON-CLICK] User clicked on translate icon.');
+            translationInProgress = true;
+
+            // Store position *at the time of the click*
+            window.translationPosition = {
+                left: window.scrollX + rect.left,
+                top: window.scrollY + rect.top,
+                bottom: window.scrollY + rect.bottom,
+                right: window.scrollX + rect.right,
+                width: rect.width,
+                height: rect.height
+            };
+
+            // Change to spinner
+            icon.src = chrome.runtime.getURL("spinner.png");
+            icon.style.animation = "spin 1s linear infinite";
+            _spinnerKeyframes.isConnected || document.head.appendChild(_spinnerKeyframes); // Ensure keyframes are present
+
+            chrome.runtime.sendMessage({
+                action: "translate",
+                text: selectedText,
+                position: window.translationPosition // Send stored position
             });
+            console.log('[SEND-MSG] Sent message to background script.');
+        });
 
-            // Lưu vị trí của vùng bôi đen khi click vào icon
-            icon.addEventListener("click", () => {
-                // Không cho tạo icon khác tới khi xong
-                translationInProgress = true;
-                // Lưu lại chính xác vị trí của vùng bôi đen vào biến toàn cục
-                window.translationPosition = {
-                    left: window.scrollX + rect.left,
-                    top: window.scrollY + rect.top,
-                    bottom: window.scrollY + rect.bottom,
-                    right: window.scrollX + rect.right,
-                    width: rect.width,
-                    height: rect.height
-                };
+        icon.addEventListener("mouseover", () => {
+            if (!translationInProgress) { // Don't scale spinner
+                icon.style.transform = "scale(1.15)";
+            }
+        });
 
-                // Chuyển icon thành spinner
-                icon.src = chrome.runtime.getURL("spinner.png");
-                icon.style.animation = "spin 1s linear infinite"; // Xoay vòng
+        icon.addEventListener("mouseout", () => {
+            icon.style.transform = "scale(1)";
+        });
 
-                chrome.runtime.sendMessage({
-                    action: "translate",
-                    text: selectedText,
-                    position: window.translationPosition
-                });
-                //icon.remove();
-            });
+        // --- Listener to Remove Icon on Outside Click ---
+        // Use a more robust way to handle outside clicks
+        const handleOutsideClick = (outsideClickEvent) => {
+            const clickedIcon = outsideClickEvent.target === icon;
+            const iconExists = document.getElementById("translate-icon") === icon;
 
-            // Hiệu ứng hover
-            icon.addEventListener("mouseover", () => {
-                icon.style.transform = "scale(1.1)";
-            });
-
-            icon.addEventListener("mouseout", () => {
-                icon.style.transform = "scale(1)";
-            });
-
-            // Xóa icon nếu click ra ngoài
-            document.addEventListener("click", (clickEvent) => {
-                if (clickEvent.target !== icon) {
-                    icon.remove();
+            // If the icon still exists AND the click was NOT on the icon itself...
+            if (iconExists && !clickedIcon) {
+                // ...and if we are NOT currently translating (i.e., it's still the initial icon)...
+                if (!translationInProgress) {
+                    icon.style.opacity = "0"; // Fade out
+                    setTimeout(() => icon.remove(), 200); // Remove after fade
                 }
-            }, { once: true });
-        }
-    }, 1);
+                // Clean up this specific listener
+                document.removeEventListener("mousedown", handleOutsideClick, true); // Use capture phase
+            } else if (!iconExists) {
+                // Icon was removed by other means (e.g., new selection), clean up listener
+                document.removeEventListener("mousedown", handleOutsideClick, true);
+            }
+        };
+
+        // Add the listener in the capture phase to catch clicks before they might be stopped elsewhere.
+        // Use mousedown as it often feels more responsive for this kind of dismissal.
+        document.addEventListener("mousedown", handleOutsideClick, { capture: true, once: false }); // once: false initially, manually remove later
+    }, 50);  // Increased timeout slightly to 50ms, adjust if needed
 });
+
+// Also ensure the keyframes are added reliably if not already present
+// Check if keyframes are already added before appending
+if (!document.head.contains(_spinnerKeyframes)) {
+    document.head.appendChild(_spinnerKeyframes);
+}
 
 // Xử lý đoạn dịch hiển thị và ẩn khi click ra ngoài
 chrome.runtime.onMessage.addListener((message) => {
@@ -332,6 +394,7 @@ chrome.runtime.onMessage.addListener((message) => {
         // --- Thêm đoạn code này để xóa icon ---
         const iconToRemove = document.getElementById("translate-icon");
         if (iconToRemove) {
+            console.log('[SPINNER-REMOVE] Removing spinner icon.');
             iconToRemove.style.transition = "opacity 0.3s ease-out"; // Thêm transition cho hiệu ứng mờ dần
             iconToRemove.style.opacity = "0"; // Bắt đầu làm mờ icon
             setTimeout(() => {
@@ -340,7 +403,7 @@ chrome.runtime.onMessage.addListener((message) => {
         }
         // --- Kết thúc đoạn code thêm ---
         // Cho phép tạo icon mới lần sau
-        translationInProgress = false;
+        //translationInProgress = false;
 
         // Sử dụng vị trí đã lưu từ click vào icon
         const position = message.position;
@@ -485,10 +548,12 @@ chrome.runtime.onMessage.addListener((message) => {
 
         // Hiệu ứng hiện lên sau khi thêm vào DOM
         setTimeout(() => {
+            console.log('[POPUP-SHOW] Showing popup with translation result.');
             div.style.opacity = "1";
             div.style.transform = "scale(1)";
             // giờ popup đã hiện xong animation → mới reset flag
             translationInProgress = false;
+            console.log('[RESET-FLAG] translationInProgress = false.');
         }, 10);
 
         // Xử lý click ra ngoài
