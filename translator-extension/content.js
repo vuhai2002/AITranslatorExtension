@@ -284,9 +284,9 @@ document.addEventListener("mouseup", (e) => {
         icon.style.width = "28px"; // Tăng kích thước icon
         icon.style.height = "28px";
         icon.style.cursor = "pointer";
-        icon.style.transition = "transform 0.2s ease, opacity 0.2s ease";
+        icon.style.transition = "transform 0.2s ease, opacity 0.15s ease";
         icon.style.zIndex = "2147483647";
-        icon.style.opacity = "0";
+        icon.style.opacity = "0.8";
 
         // Append the icon (simplified)
         document.documentElement.appendChild(icon);
@@ -380,11 +380,11 @@ chrome.runtime.onMessage.addListener((message) => {
         // --- Thêm đoạn code này để xóa icon ---
         const iconToRemove = document.getElementById("translate-icon");
         if (iconToRemove) {
-            iconToRemove.style.transition = "opacity 0.3s ease-out"; // Thêm transition cho hiệu ứng mờ dần
+            iconToRemove.style.transition = "opacity 0.15s ease-out"; // Thêm transition cho hiệu ứng mờ dần
             iconToRemove.style.opacity = "0"; // Bắt đầu làm mờ icon
             setTimeout(() => {
                 iconToRemove.remove(); // Xóa icon sau khi hiệu ứng hoàn tất
-            }, 300); // Thời gian khớp với transition
+            }, 150); // Thời gian khớp với transition
         }
         // --- Kết thúc đoạn code thêm ---
         // Cho phép tạo icon mới lần sau
@@ -564,5 +564,3 @@ chrome.runtime.onMessage.addListener((message) => {
         }
     }
 });
-
-// Không lưu vị trí chuột nữa vì chúng ta sử dụng vị trí của vùng bôi đen
