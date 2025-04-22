@@ -34,7 +34,7 @@ function initHoverTranslate() {
     let lastTranslatedText = { original: "", translated: "" }; // Lưu đoạn dịch gần nhất
     let lastMouseEvent = null; // Biến mới để lưu vị trí chuột mới nhất
 
-    // Cập nhật CSS cho tooltip và mũi tên
+    // CSS cho tooltip và mũi tên
     const style = document.createElement("style");
     style.textContent = `
     #hover-translate-tooltip {
@@ -50,11 +50,11 @@ function initHoverTranslate() {
         border-radius: 6px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         text-align: left;
-        z-index: 9999;
+        z-index: 2147483647;
         opacity: 0;
-        transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
         transform: scale(0.95);
-        pointer-events: none; /* Thêm dòng này để tooltip không can thiệp vào sự kiện chuột */
+        pointer-events: none;
     }
 
     /* Mũi tên của tooltip */
@@ -67,26 +67,45 @@ function initHoverTranslate() {
         height: 0;
         border-left: 6px solid transparent;
         border-right: 6px solid transparent;
-        border-top: 8px solid #e3f2fd; /* Cùng màu với tooltip */
-        pointer-events: none; /* Thêm dòng này để mũi tên cũng không can thiệp vào sự kiện chuột */
+        border-top: 8px solid #e3f2fd;
+        pointer-events: none;
     }
     `;
     document.head.appendChild(style);
 
+    const validSelectors = "h1, h2, h3, h4, h5, h6, h7, a, label, b, span, yt-formatted-string";
 
     document.addEventListener("mousemove", (event) => {
-        // Luôn cập nhật vị trí chuột mới nhất
         lastMouseEvent = event;
         const target = event.target;
 
-        // Chỉ dịch nếu hover vào các thẻ có chữ (loại bỏ img, button, input, v.v.)
-        if (!target.matches("h1, h2, h3, h4, h5, h6, h7, a, label, b, span, yt-formatted-string")) {
-            hideTooltip();
+        // Bỏ qua nếu di chuột lên chính tooltip
+        if (tooltip && tooltip.contains(target)) {
             return;
         }
 
-        const text = target.innerText.trim();
-        if (!text || text.length > 150) return; // Giới hạn chữ dịch
+        // Nếu không phải là phần tử hợp lệ để dịch
+        if (!target.matches(validSelectors)) {
+            // Chỉ ẩn nếu tooltip đang hiện và chuột không còn trên phần tử cũ
+            if (tooltipVisible && (!lastHoveredElement || !lastHoveredElement.contains(target))) {
+                hideTooltip();
+            }
+            clearTimeout(translateTimeout); // Xóa timeout nếu di ra ngoài
+            lastHoveredElement = null; // Reset phần tử cuối cùng
+            return;
+        }
+
+        const text = target.innerText?.trim(); // Sử dụng optional chaining đề phòng lỗi
+        // Thêm kiểm tra độ dài tối thiểu, ví dụ 3 ký tự
+        if (!text || text.length < 3 || text.length > 150) {
+            // Nếu đang hiện tooltip mà text không hợp lệ nữa thì ẩn đi
+            if (tooltipVisible && lastHoveredElement === target) {
+                hideTooltip();
+            }
+            clearTimeout(translateTimeout);
+            // Không reset lastHoveredElement ở đây ngay, để tránh việc tạo lại timeout liên tục khi lướt qua text ngắn
+            return;
+        }
 
         // Nếu di chuột trong cùng một phần tử, chỉ di chuyển tooltip mà không dịch lại
         if (lastHoveredElement === target) {
@@ -94,13 +113,22 @@ function initHoverTranslate() {
             return;
         }
 
-        lastHoveredElement = target;
+        // --- Đã di chuột sang phần tử hợp lệ MỚI ---
+        const previousHoveredElement = lastHoveredElement; // Lưu lại phần tử cũ
+        lastHoveredElement = target; // Cập nhật phần tử mới
 
-        // Thêm sự kiện mouseout cho phần tử này để ẩn tooltip khi di chuột ra ngoài
+        // Gỡ bỏ listener cũ nếu có (dù có {once: true}, làm vậy cho chắc chắn)
+        if (previousHoveredElement) {
+            previousHoveredElement.removeEventListener("mouseout", handleMouseOut);
+        }
+
+        // Thêm sự kiện mouseout cho phần tử MỚI
         target.addEventListener("mouseout", handleMouseOut, { once: true })
 
-        // Nếu văn bản này trùng với lần dịch trước đó, hiển thị ngay lập tức
+        // Nếu văn bản trùng với lần dịch trước, hiển thị ngay
         if (lastTranslatedText.original === text) {
+            // Đảm bảo tooltip không đang ẩn đi
+            clearTimeout(translateTimeout); // Xóa timeout dịch cũ
             showTooltip(event, lastTranslatedText.translated);
             return;
         }
@@ -108,12 +136,22 @@ function initHoverTranslate() {
         // Nếu chưa dịch, gọi API sau một khoảng thời gian
         clearTimeout(translateTimeout);
         translateTimeout = setTimeout(() => {
-            chrome.storage.sync.get(["targetLangCode"], (data) => {
-                const targetLang = data.targetLangCode || "vi"; // Ngôn ngữ mặc định nếu chưa lưu
-                // Sử dụng vị trí chuột hiện tại khi gọi API, không phải vị trí ban đầu
-                fetchTranslation(text, targetLang, lastMouseEvent);
-            });
-        }, 200);
+            // Chỉ fetch nếu chuột VẪN còn trên phần tử này sau delay
+            if (lastHoveredElement === target) {
+                chrome.storage.sync.get(["targetLangCode"], (data) => {
+                    const targetLang = data.targetLangCode || "vi"; // Ngôn ngữ mặc định nếu chưa lưu
+                    // Sử dụng lastMouseEvent để lấy vị trí mới nhất
+                    fetchTranslation(text, targetLang, lastMouseEvent || event);
+                });
+            }
+        }, 300);
+    });
+
+    document.documentElement.addEventListener('mouseleave', () => {
+        // Khi chuột rời khỏi toàn bộ trang, ẩn tooltip và xóa timeout
+        hideTooltip();
+        clearTimeout(translateTimeout);
+        lastHoveredElement = null; // Đảm bảo reset
     });
 
     // Thêm hàm xử lý khi di chuột ra khỏi phần tử
@@ -261,8 +299,8 @@ document.addEventListener("mouseup", (e) => {
             if (oldIcon && e.target !== oldIcon && !translationInProgress) {
                 // Sử dụng handleOutsideClick sẽ tốt hơn, tạm thời comment dòng remove này
                 // oldIcon.remove();
-           }
-           return; // Exit early
+            }
+            return; // Exit early
         }
 
         // Xóa icon cũ *chỉ khi* tạo icon mới (đảm bảo không xóa spinner)
