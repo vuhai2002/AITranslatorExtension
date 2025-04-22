@@ -226,12 +226,6 @@ function initHoverTranslate() {
             tooltipVisible = false;
 
             lastHoveredElement = null;
-            // // Chỉ reset lastHoveredElement sau khi tooltip biến mất hoàn toàn
-            // setTimeout(() => {
-            //     if (!tooltipVisible) {
-            //         lastHoveredElement = null;
-            //     }
-            // }, 300); // Thời gian nên khớp với thời gian transition
         }
     }
 }
@@ -249,50 +243,44 @@ chrome.storage.onChanged.addListener((changes) => {
 });
 
 document.addEventListener("mouseup", (e) => {
-    // Nếu đang dịch thì bỏ qua, tránh tạo thêm icon
-    if (translationInProgress) {
-        console.log('[MOUSEUP-IGNORE] Translation already in progress.');
-        return;
-    }
-
     // Use a minimal timeout to allow the browser to finalize the selection state.
     setTimeout(() => {
+
+        if (translationInProgress) {
+            return;
+        }
+
         const selection = window.getSelection();
         const selectedText = selection.toString().trim();
 
         // 1. Check if the selection is collapsed (just a cursor) OR if the trimmed text is empty.
         //    If either is true, it's not a valid selection for translation.
         if (selection.isCollapsed || selectedText.length === 0) {
-            // Optional: Log why we are ignoring this mouseup event, if needed for debugging.
-            console.log('[MOUSEUP-IGNORE] Selection is collapsed or empty.');
-
             // Attempt to remove any existing icon if the selection is lost
             const oldIcon = document.getElementById("translate-icon");
-            if (oldIcon && e.target !== oldIcon) { // Only remove if the click wasn't ON the icon itself
-                oldIcon.remove();
-            }
-            return; // Exit early, do nothing further.
+            if (oldIcon && e.target !== oldIcon && !translationInProgress) {
+                // Sử dụng handleOutsideClick sẽ tốt hơn, tạm thời comment dòng remove này
+                // oldIcon.remove();
+           }
+           return; // Exit early
         }
 
-        // 2. Log ONLY when a valid selection is detected.
-        console.log('[MOUSEUP] User selected text. Checking selection -> Valid selection found.');
-
-        // Xóa icon cũ nếu có
+        // Xóa icon cũ *chỉ khi* tạo icon mới (đảm bảo không xóa spinner)
         const oldIcon = document.getElementById("translate-icon");
-        if (oldIcon) oldIcon.remove();
+        if (oldIcon) {
+            oldIcon.remove();
+        }
 
         const range = selection.getRangeAt(0);
         const rect = range.getBoundingClientRect(); // Lấy vị trí của vùng bôi đen
 
         const icon = document.createElement("img");
-        console.log('[CREATE-ICON] Icon created and displayed at selection.');
         icon.id = "translate-icon";
         icon.src = chrome.runtime.getURL("icon.png"); // Lấy icon từ extension
 
         icon.style.position = "absolute";
         icon.style.left = `${window.scrollX + rect.left + (rect.width / 2) - 16}px`; // Căn giữa icon
         icon.style.top = `${window.scrollY + rect.bottom + 5}px`; // Đặt icon ngay dưới vùng bôi đen
-
         icon.style.width = "28px"; // Tăng kích thước icon
         icon.style.height = "28px";
         icon.style.cursor = "pointer";
@@ -314,7 +302,6 @@ document.addEventListener("mouseup", (e) => {
             clickEvent.stopPropagation(); // Prevent this click from triggering the document's click listener below
 
             if (translationInProgress) return; // Double-check
-            console.log('[ICON-CLICK] User clicked on translate icon.');
             translationInProgress = true;
 
             // Store position *at the time of the click*
@@ -337,7 +324,6 @@ document.addEventListener("mouseup", (e) => {
                 text: selectedText,
                 position: window.translationPosition // Send stored position
             });
-            console.log('[SEND-MSG] Sent message to background script.');
         });
 
         icon.addEventListener("mouseover", () => {
@@ -394,7 +380,6 @@ chrome.runtime.onMessage.addListener((message) => {
         // --- Thêm đoạn code này để xóa icon ---
         const iconToRemove = document.getElementById("translate-icon");
         if (iconToRemove) {
-            console.log('[SPINNER-REMOVE] Removing spinner icon.');
             iconToRemove.style.transition = "opacity 0.3s ease-out"; // Thêm transition cho hiệu ứng mờ dần
             iconToRemove.style.opacity = "0"; // Bắt đầu làm mờ icon
             setTimeout(() => {
@@ -548,12 +533,10 @@ chrome.runtime.onMessage.addListener((message) => {
 
         // Hiệu ứng hiện lên sau khi thêm vào DOM
         setTimeout(() => {
-            console.log('[POPUP-SHOW] Showing popup with translation result.');
             div.style.opacity = "1";
             div.style.transform = "scale(1)";
             // giờ popup đã hiện xong animation → mới reset flag
             translationInProgress = false;
-            console.log('[RESET-FLAG] translationInProgress = false.');
         }, 10);
 
         // Xử lý click ra ngoài

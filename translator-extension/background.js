@@ -41,8 +41,6 @@ chrome.runtime.onMessage.addListener((message, sender) => {
         chrome.storage.sync.get(["targetLangName"], (data) => {
             const targetLang = data.targetLangName || "vi";
 
-            console.log('[START-FETCH] Sending request to OpenAI API.');
-
             fetch("https://api.openai.com/v1/chat/completions", {
                 method: "POST",
                 headers: {
@@ -56,14 +54,12 @@ chrome.runtime.onMessage.addListener((message, sender) => {
             })
             .then(response => response.json())
             .then(data => {
-                console.log('[RECEIVE-RESPONSE] Received response from OpenAI API.');
                 if (data.choices && data.choices.length > 0) {
                     chrome.tabs.sendMessage(sender.tab.id, { 
                         action: "showTranslation", 
                         translation: data.choices[0].message.content,
                         position: message.position
                     });
-                    console.log('[SEND-RESULT] Sending translation to content script');
                 }
             })
             .catch(error);
