@@ -123,18 +123,18 @@ function initHoverTranslate() {
         color: #212121; /* Màu chữ tối */
         font-family: Arial, sans-serif;
         font-size: 14px;
-        line-height: 1.5;
-        max-width: 250px;
+        line-height: 1.4;
+        max-width: 200px;
         word-wrap: break-word;
-        padding: 8px 12px;
+        padding: 5px 8px;
         border-radius: 6px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-        text-align: left;
-        z-index: 9999;
+        text-align: center;
+        z-index: 100000300;
         opacity: 0;
-        transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+        transition: opacity 0.15s ease-in-out, transform 0.15s ease-in-out;
         transform: scale(0.95);
-        pointer-events: none; /* Thêm dòng này để tooltip không can thiệp vào sự kiện chuột */
+        pointer-events: none;
     }
 
     /* Mũi tên của tooltip */
@@ -148,7 +148,7 @@ function initHoverTranslate() {
         border-left: 6px solid transparent;
         border-right: 6px solid transparent;
         border-top: 8px solid #e3f2fd; /* Cùng màu với tooltip */
-        pointer-events: none; /* Thêm dòng này để mũi tên cũng không can thiệp vào sự kiện chuột */
+        pointer-events: none;
     }
     `;
     document.head.appendChild(style);
@@ -160,13 +160,26 @@ function initHoverTranslate() {
         const target = event.target;
 
         // Chỉ dịch nếu hover vào các thẻ có chữ (loại bỏ img, button, input, v.v.)
-        if (!target.matches("h1, h2, h3, h4, h5, h6, h7, a, label, b, span, yt-formatted-string")) {
+        if (!target.matches("h1, h2, h3, h4, h5, h6, h7, a, label, b, header, yt-formatted-string, button, section")) {
             hideTooltip();
             return;
         }
 
-        const text = target.innerText.trim();
+        // Kiểm tra xem con trỏ có đang ở trên vùng có chữ hay không
+        const text = target.innerText?.trim();
         if (!text || text.length > 150) return; // Giới hạn chữ dịch
+
+        // Lấy vị trí con trỏ chuột trong tọa độ viewport
+        const mouseX = event.clientX;
+        const mouseY = event.clientY;
+
+        // Kiểm tra xem con trỏ chuột có đang trỏ vào phần tử text node hay không
+        const isOverText = isMouseOverTextNode(target, mouseX, mouseY);
+        
+        if (!isOverText) {
+            hideTooltip();
+            return;
+        }
 
         // Nếu di chuột trong cùng một phần tử, chỉ di chuyển tooltip mà không dịch lại
         if (lastHoveredElement === target) {
@@ -195,6 +208,46 @@ function initHoverTranslate() {
             });
         }, 200);
     });
+
+    // Hàm kiểm tra xem con trỏ chuột có đang nằm trên text node hay không
+    function isMouseOverTextNode(element, mouseX, mouseY) {
+        // Lấy tất cả các text node trong phần tử
+        const walker = document.createTreeWalker(
+            element,
+            NodeFilter.SHOW_TEXT,
+            null,
+            false
+        );
+        
+        let textNode;
+        while (textNode = walker.nextNode()) {
+            // Bỏ qua các node text rỗng hoặc chỉ chứa khoảng trắng
+            if (!textNode.textContent.trim()) continue;
+            
+            try {
+                const range = document.createRange();
+                range.selectNodeContents(textNode);
+                
+                const rects = range.getClientRects();
+                
+                // Kiểm tra xem con trỏ chuột có nằm trong một trong các rects hay không
+                for (let i = 0; i < rects.length; i++) {
+                    const rect = rects[i];
+                    if (
+                        mouseX >= rect.left && mouseX <= rect.right &&
+                        mouseY >= rect.top && mouseY <= rect.bottom
+                    ) {
+                        return true;
+                    }
+                }
+            } catch (e) {
+                // Bỏ qua lỗi nếu có
+                console.error("Error checking text node:", e);
+            }
+        }
+        
+        return false;
+    }
 
     document.documentElement.addEventListener('mouseleave', () => {
         // Khi chuột rời khỏi toàn bộ trang, ẩn tooltip và xóa timeout

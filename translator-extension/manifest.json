@@ -5,6 +5,7 @@
     "description": "Dịch nhanh văn bản với AI GPT-4.1 & Microsoft AI. Hover để dịch tức thì, bôi đen để dịch nhanh, hỗ trợ UI Tiếng Việt & Dark Mode.",
     "permissions": [
         "storage",
+        "contextMenus",
         "activeTab",
         "scripting"
     ],
