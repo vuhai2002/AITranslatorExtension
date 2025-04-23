@@ -132,8 +132,7 @@ function initHoverTranslate() {
         text-align: center;
         z-index: 100000300;
         opacity: 0;
-        transition: opacity 0.15s ease-in-out, transform 0.15s ease-in-out;
-        transform: scale(0.95);
+        transition: opacity 0.15s ease-in-out;
         pointer-events: none;
     }
 
@@ -160,7 +159,7 @@ function initHoverTranslate() {
         const target = event.target;
 
         // Chỉ dịch nếu hover vào các thẻ có chữ (loại bỏ img, button, input, v.v.)
-        if (!target.matches("h1, h2, h3, h4, h5, h6, h7, a, label, b, header, yt-formatted-string, button, section, td")) {
+        if (!target.matches("h1, h2, h3, h4, h5, h6, h7, a, label, b, header, yt-formatted-string, button, section, td, span")) {
             hideTooltip();
             return;
         }
@@ -245,10 +244,7 @@ function initHoverTranslate() {
                         return true;
                     }
                 }
-            } catch (e) {
-                // Bỏ qua lỗi nếu có
-                console.error("Error checking text node:", e);
-            }
+            } catch (e) { }
         }
 
         return false;
@@ -371,7 +367,6 @@ function initHoverTranslate() {
         // Thêm setTimeout để có hiệu ứng mượt mà khi hiển thị
         setTimeout(() => {
             tooltip.style.opacity = "1";
-            tooltip.style.transform = "scale(1)";
             tooltipVisible = true;
         }, 10);
     }
@@ -379,7 +374,6 @@ function initHoverTranslate() {
     function hideTooltip() {
         if (tooltip && tooltipVisible) {
             tooltip.style.opacity = "0";
-            tooltip.style.transform = "scale(0.95)";
             tooltipVisible = false;
 
             lastHoveredElement = null;
