@@ -140,14 +140,14 @@ function initHoverTranslate() {
     /* Mũi tên của tooltip */
     #tooltip-arrow {
         position: absolute;
-        bottom: -8px; /* Để mũi tên chỉ xuống dưới */
+        bottom: -6px;
         left: 50%;
         transform: translateX(-50%);
         width: 0;
         height: 0;
-        border-left: 6px solid transparent;
-        border-right: 6px solid transparent;
-        border-top: 8px solid #e3f2fd; /* Cùng màu với tooltip */
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        border-top: 6px solid #e3f2fd;
         pointer-events: none;
     }
     `;
@@ -160,7 +160,7 @@ function initHoverTranslate() {
         const target = event.target;
 
         // Chỉ dịch nếu hover vào các thẻ có chữ (loại bỏ img, button, input, v.v.)
-        if (!target.matches("h1, h2, h3, h4, h5, h6, h7, a, label, b, header, yt-formatted-string, button, section")) {
+        if (!target.matches("h1, h2, h3, h4, h5, h6, h7, a, label, b, header, yt-formatted-string, button, section, td")) {
             hideTooltip();
             return;
         }
@@ -175,7 +175,7 @@ function initHoverTranslate() {
 
         // Kiểm tra xem con trỏ chuột có đang trỏ vào phần tử text node hay không
         const isOverText = isMouseOverTextNode(target, mouseX, mouseY);
-        
+
         if (!isOverText) {
             hideTooltip();
             return;
@@ -218,24 +218,29 @@ function initHoverTranslate() {
             null,
             false
         );
-        
+
+        // Khoảng dung sai để mở rộng vùng phát hiện (px)
+        const tolerance = 5; // Thêm 5px xung quanh mỗi text node
+
         let textNode;
         while (textNode = walker.nextNode()) {
             // Bỏ qua các node text rỗng hoặc chỉ chứa khoảng trắng
             if (!textNode.textContent.trim()) continue;
-            
+
             try {
                 const range = document.createRange();
                 range.selectNodeContents(textNode);
-                
+
                 const rects = range.getClientRects();
-                
-                // Kiểm tra xem con trỏ chuột có nằm trong một trong các rects hay không
+
+                // Kiểm tra xem con trỏ chuột có nằm trong một trong các rects (đã mở rộng) hay không
                 for (let i = 0; i < rects.length; i++) {
                     const rect = rects[i];
                     if (
-                        mouseX >= rect.left && mouseX <= rect.right &&
-                        mouseY >= rect.top && mouseY <= rect.bottom
+                        mouseX >= (rect.left - tolerance) &&
+                        mouseX <= (rect.right + tolerance) &&
+                        mouseY >= (rect.top - tolerance) &&
+                        mouseY <= (rect.bottom + tolerance)
                     ) {
                         return true;
                     }
@@ -245,7 +250,7 @@ function initHoverTranslate() {
                 console.error("Error checking text node:", e);
             }
         }
-        
+
         return false;
     }
 
@@ -307,7 +312,7 @@ function initHoverTranslate() {
             const tooltipWidth = tooltip.offsetWidth;
             const tooltipHeight = tooltip.offsetHeight;
             const offsetX = 5;
-            const offsetY = 10; // Khoảng cách mặc định
+            const offsetY = 14; // Khoảng cách mặc định
 
             // Tính toán vị trí mặc định (hiển thị phía trên con trỏ)
             let posX = event.pageX - tooltipWidth / 2;
@@ -316,24 +321,24 @@ function initHoverTranslate() {
             // Kiểm tra xem tooltip có vượt khỏi cạnh trên không
             if (posY < window.scrollY) {
                 // Nếu vượt khỏi cạnh trên, hiển thị tooltip phía dưới con trỏ
-                posY = event.pageY + offsetY + 15;
+                posY = event.pageY + offsetY + 8;
 
                 // Di chuyển mũi tên lên trên đầu tooltip
                 const arrow = tooltip.querySelector("#tooltip-arrow");
                 if (arrow) {
-                    arrow.style.top = "-8px";
+                    arrow.style.top = "-6px";
                     arrow.style.bottom = "auto";
                     arrow.style.borderTop = "none";
-                    arrow.style.borderBottom = "8px solid #e3f2fd";
+                    arrow.style.borderBottom = "6px solid #e3f2fd";
                 }
             } else {
                 // Trường hợp mặc định, hiển thị tooltip phía trên con trỏ
                 const arrow = tooltip.querySelector("#tooltip-arrow");
                 if (arrow) {
-                    arrow.style.bottom = "-8px";
+                    arrow.style.bottom = "-6px";
                     arrow.style.top = "auto";
                     arrow.style.borderBottom = "none";
-                    arrow.style.borderTop = "8px solid #e3f2fd";
+                    arrow.style.borderTop = "6px solid #e3f2fd";
                 }
             }
 
@@ -413,8 +418,8 @@ document.addEventListener("mouseup", (e) => {
             if (oldIcon && e.target !== oldIcon && !translationInProgress) {
                 // Sử dụng handleOutsideClick sẽ tốt hơn, tạm thời comment dòng remove này
                 // oldIcon.remove();
-           }
-           return; // Exit early
+            }
+            return; // Exit early
         }
 
         // Xóa icon cũ *chỉ khi* tạo icon mới (đảm bảo không xóa spinner)
@@ -470,7 +475,7 @@ document.addEventListener("mouseup", (e) => {
             // Remove the image and replace with a CSS spinner
             icon.innerHTML = ''; // Clear the image
             icon.style.backgroundImage = 'none';
-            
+
             // Create the spinner HTML structure
             const spinner = document.createElement('div');
             spinner.className = 'lds-spinner';
@@ -479,9 +484,9 @@ document.addEventListener("mouseup", (e) => {
                 const div = document.createElement('div');
                 spinner.appendChild(div);
             }
-            
+
             icon.appendChild(spinner);
-            
+
             // Ensure spinner styles are injected
             _spinnerKeyframes.isConnected || document.head.appendChild(_spinnerKeyframes);
 
