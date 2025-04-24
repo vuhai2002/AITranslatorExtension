@@ -270,33 +270,31 @@ function initHoverTranslate() {
     }
 
     async function fetchTranslation(text, targetLang, event) {
-        const url = `https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=${targetLang}`;
-
         try {
-            const response = await fetch(url, {
-                method: 'POST',
+            const response = await fetch("https://translate.vuhai.me/api/translate", {
+                method: "POST",
                 headers: {
-                    'Ocp-Apim-Subscription-Key': 'YOUR_SUBSCRIPTION_KEY',
-                    'Ocp-Apim-Subscription-Region': 'southeastasia',
-                    'Content-Type': 'application/json'
+                    "Content-Type": "application/json"
                 },
-                body: JSON.stringify([{
-                    'text': text
-                }])
+                body: JSON.stringify({
+                    text: text,
+                    targetLang: targetLang,
+                    service: "microsoft" // Sử dụng Microsoft Translator
+                })
             });
 
             const result = await response.json();
 
-            const translatedText = result[0].translations[0].text;
+            if (result.translation) {
+                // Lưu bản dịch gần nhất
+                lastTranslatedText = { original: text, translated: result.translation };
 
-            // Lưu bản dịch gần nhất
-            lastTranslatedText = { original: text, translated: translatedText };
-
-            // Nếu chuột vẫn trên cùng một phần tử thì hiển thị kết quả
-            if (lastHoveredElement && lastHoveredElement.innerText.trim() === text) {
-                // Sử dụng vị trí chuột hiện tại thay vì vị trí khi bắt đầu dịch
-                const currentMouseEvent = lastMouseEvent || event;
-                showTooltip(currentMouseEvent, translatedText);
+                // Nếu chuột vẫn trên cùng một phần tử thì hiển thị kết quả
+                if (lastHoveredElement && lastHoveredElement.innerText.trim() === text) {
+                    // Sử dụng vị trí chuột hiện tại thay vì vị trí khi bắt đầu dịch
+                    const currentMouseEvent = lastMouseEvent || event;
+                    showTooltip(currentMouseEvent, result.translation);
+                }
             }
         } catch (error) { }
     }

@@ -1,5 +1,3 @@
-const API_KEY = ""; // Đặt API Key cố định tại đây
-
 // Khởi tạo extension
 chrome.runtime.onInstalled.addListener(() => {
     // Thiết lập giá trị mặc định
@@ -39,30 +37,32 @@ function translateSelectedText() {
 chrome.runtime.onMessage.addListener((message, sender) => {
     if (message.action === "translate") {
         chrome.storage.sync.get(["targetLangName"], (data) => {
-            const targetLang = data.targetLangName || "vi";
+            const targetLang = data.targetLangName || "Vietnamese";
 
-            fetch("https://api.openai.com/v1/chat/completions", {
+            // Gọi đến server API của bạn thay vì OpenAI trực tiếp
+            fetch("https://translate.vuhai.me/api/translate", {
                 method: "POST",
                 headers: {
-                    "Authorization": `Bearer ${API_KEY}`,
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    model: "gpt-4.1-nano",
-                    messages: [{ role: "user", content: `Dịch chính xác và giữ nguyên ý nghĩa gốc của từ hoặc đoạn sau sang ${targetLang}, trả về đúng kết quả. Trả lời bằng ${targetLang}: ${message.text}` }]
+                    text: message.text,
+                    targetLang: targetLang,
+                    service: "openai" // hoặc "microsoft"
                 })
             })
             .then(response => response.json())
             .then(data => {
-                if (data.choices && data.choices.length > 0) {
+                if (data.translation) {
                     chrome.tabs.sendMessage(sender.tab.id, { 
                         action: "showTranslation", 
-                        translation: data.choices[0].message.content,
+                        translation: data.translation,
                         position: message.position
                     });
                 }
             })
-            .catch(error);
+            .catch(error => console.error("Translation error:", error));
         });
+        return true; // Để giữ kết nối mở cho response không đồng bộ
     }
 });
