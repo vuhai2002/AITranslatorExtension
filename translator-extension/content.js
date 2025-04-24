@@ -97,7 +97,9 @@ chrome.storage.sync.get(["hoverTranslate", "blockedSites"], (data) => {
 
     const blockedSites = data.blockedSites || [];
 
-    if (blockedSites.some(site => window.location.hostname.includes(site)) || !data.hoverTranslate) {
+    if (window.location.hostname.includes('facebook.com') ||
+        blockedSites.some(site => window.location.hostname.includes(site)) ||
+        !data.hoverTranslate) {
         return;
     }
 
@@ -164,6 +166,11 @@ function initHoverTranslate() {
             return;
         }
 
+        if ((target.tagName === 'SPAN' && target.parentElement && target.parentElement.tagName === 'SPAN') || (target.tagName === 'SPAN' && target.parentElement && target.parentElement.tagName === 'DIV')) {
+            hideTooltip();
+            return; // Bỏ qua nếu là span trong span
+        }
+
         // Kiểm tra xem con trỏ có đang ở trên vùng có chữ hay không
         const text = target.innerText?.trim();
         if (!text || text.length > 150) return; // Giới hạn chữ dịch
@@ -199,13 +206,16 @@ function initHoverTranslate() {
 
         // Nếu chưa dịch, gọi API sau một khoảng thời gian
         clearTimeout(translateTimeout);
-        translateTimeout = setTimeout(() => {
-            chrome.storage.sync.get(["targetLangCode"], (data) => {
-                const targetLang = data.targetLangCode || "vi"; // Ngôn ngữ mặc định nếu chưa lưu
-                // Sử dụng vị trí chuột hiện tại khi gọi API, không phải vị trí ban đầu
-                fetchTranslation(text, targetLang, lastMouseEvent);
-            });
-        }, 200);
+
+        try {
+            translateTimeout = setTimeout(() => {
+                chrome.storage.sync.get(["targetLangCode"], (data) => {
+                    const targetLang = data.targetLangCode || "vi"; // Ngôn ngữ mặc định nếu chưa lưu
+                    // Sử dụng vị trí chuột hiện tại khi gọi API, không phải vị trí ban đầu
+                    fetchTranslation(text, targetLang, lastMouseEvent);
+                });
+            }, 200);
+        } catch (error) { }
     });
 
     // Hàm kiểm tra xem con trỏ chuột có đang nằm trên text node hay không
