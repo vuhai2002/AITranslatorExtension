@@ -141,15 +141,16 @@ function initHoverTranslate() {
     /* Mũi tên của tooltip */
     #tooltip-arrow {
         position: absolute;
-        bottom: -6px;
+        bottom: -8px;
         left: 50%;
         transform: translateX(-50%);
         width: 0;
         height: 0;
-        border-left: 4px solid transparent;
-        border-right: 4px solid transparent;
-        border-top: 6px solid #e3f2fd;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 8px solid #e3f2fd;
         pointer-events: none;
+        margin-bottom: 2px;
     }
     `;
     document.head.appendChild(style);
@@ -338,6 +339,8 @@ function initHoverTranslate() {
                     arrow.style.bottom = "auto";
                     arrow.style.borderTop = "none";
                     arrow.style.borderBottom = "6px solid #e3f2fd";
+                    arrow.style.marginTop = "2px";
+                    arrow.style.marginBottom = "0";
                 }
             } else {
                 // Trường hợp mặc định, hiển thị tooltip phía trên con trỏ
@@ -347,6 +350,8 @@ function initHoverTranslate() {
                     arrow.style.top = "auto";
                     arrow.style.borderBottom = "none";
                     arrow.style.borderTop = "6px solid #e3f2fd";
+                    arrow.style.marginBottom = "2px";
+                    arrow.style.marginTop = "0";
                 }
             }
 
