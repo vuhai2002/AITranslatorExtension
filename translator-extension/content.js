@@ -154,6 +154,10 @@ function initHoverTranslate() {
     `;
     document.head.appendChild(style);
 
+    document.addEventListener("scroll", () => {
+        // Khi cuộn trang, ẩn tooltip
+        hideTooltip();
+    });
 
     document.addEventListener("mousemove", (event) => {
         // Luôn cập nhật vị trí chuột mới nhất
