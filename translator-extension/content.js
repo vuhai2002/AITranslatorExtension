@@ -159,7 +159,7 @@ function initHoverTranslate() {
         const target = event.target;
 
         // Chỉ dịch nếu hover vào các thẻ có chữ (loại bỏ img, button, input, v.v.)
-        if (!target.matches("h1, h2, h3, h4, h5, h6, h7, a, label, b, header, yt-formatted-string, button, section, td, span")) {
+        if (!target.matches("div, h1, h2, h3, h4, h5, h6, h7, a, label, b, header, yt-formatted-string, button, section, td, span")) {
             hideTooltip();
             return;
         }
