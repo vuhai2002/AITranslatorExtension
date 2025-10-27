@@ -192,7 +192,7 @@ function initHoverTranslate() {
         target.addEventListener("mouseout", handleMouseOut, { once: true })
 
         // Nếu văn bản này trùng với lần dịch trước đó, hiển thị ngay lập tức
-        if (lastTranslatedText.original === text) {
+        if (lastTranslatedText.original === text && lastTranslatedText.translated) {
             showTooltip(event, lastTranslatedText.translated);
             return;
         }
@@ -271,32 +271,61 @@ function initHoverTranslate() {
 
     async function fetchTranslation(text, targetLang, event) {
         try {
-            const response = await fetch("https://translate.vuhai.me/api/translate", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    text: text,
-                    targetLang: targetLang,
-                    service: "microsoft" // Sử dụng Microsoft Translator
-                })
-            });
+            // const response = await fetch("https://translate.vuhai.me/api/translate", {
+            //     method: "POST",
+            //     headers: {
+            //         "Content-Type": "application/json"
+            //     },
+            //     body: JSON.stringify({
+            //         text: text,
+            //         targetLang: targetLang,
+            //         service: "microsoft" // Sử dụng Microsoft Translator
+            //     })
+            // });
 
+            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
+            const response = await fetch(url);
             const result = await response.json();
 
-            if (result.translation) {
+            // Lấy code ngôn ngữ nguồn (auto-detected). Thông thường ở result[2].
+            const detectedLangRaw = Array.isArray(result) && typeof result[2] === "string" ? result[2] : null;
+
+            // Hàm chuẩn hóa mã ngôn ngữ (vi, en-US -> vi, en)
+            const norm = (s) => (s || "").toLowerCase().split("-")[0];
+
+            // Nếu ngôn ngữ nguồn trùng với targetLang => không hiển thị tooltip
+            if (norm(detectedLangRaw) === norm(targetLang)) {
+                // Ghi nhớ lần cuối để lần sau không “show lại”
+                lastTranslatedText = { original: text, translated: "" };
+                hideTooltip();
+                return;
+            }
+
+            // Lấy câu dịch
+            const translatedText =
+                Array.isArray(result) && Array.isArray(result[0]) && Array.isArray(result[0][0]) && result[0][0][0]
+                    ? result[0][0][0]
+                    : "";
+
+            if (translatedText) {
                 // Lưu bản dịch gần nhất
-                lastTranslatedText = { original: text, translated: result.translation };
+                lastTranslatedText = { original: text, translated: translatedText };
 
                 // Nếu chuột vẫn trên cùng một phần tử thì hiển thị kết quả
-                if (lastHoveredElement && lastHoveredElement.innerText.trim() === text) {
+                if (lastHoveredElement && lastHoveredElement.innerText?.trim() === text) {
                     // Sử dụng vị trí chuột hiện tại thay vì vị trí khi bắt đầu dịch
                     const currentMouseEvent = lastMouseEvent || event;
-                    showTooltip(currentMouseEvent, result.translation);
+                    showTooltip(currentMouseEvent, translatedText);
                 }
+            } else {
+                // Không lấy được bản dịch — ẩn tooltip
+                lastTranslatedText = { original: text, translated: "" };
+                hideTooltip();
             }
-        } catch (error) { }
+        } catch (error) { 
+            // Lỗi mạng/parse — ẩn tooltip để tránh treo UI
+            hideTooltip();
+        }
     }
 
     function updateTooltipPosition(event) {
