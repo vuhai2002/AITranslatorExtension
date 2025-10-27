@@ -14,8 +14,7 @@
         "service_worker": "background.js"
     },
     "action": {
-        "default_popup": "popup.html",
-        "default_title": "AI Translator"
+        "default_popup": "popup.html"
     },
     "options_page": "",
     "icons": {
@@ -41,8 +40,7 @@
             "js": [
                 "content.js"
             ],
-            "css": [],
-            "run_at": "document_idle"
+            "css": []
         }
     ]
 }
