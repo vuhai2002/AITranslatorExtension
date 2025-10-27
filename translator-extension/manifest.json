@@ -9,12 +9,12 @@
         "activeTab",
         "scripting"
     ],
-    "host_permissions": [],
     "background": {
         "service_worker": "background.js"
     },
     "action": {
-        "default_popup": "popup.html"
+        "default_popup": "popup.html",
+        "default_title": "AI Translator"
     },
     "options_page": "",
     "icons": {
@@ -40,7 +40,8 @@
             "js": [
                 "content.js"
             ],
-            "css": []
+            "css": [],
+            "run_at": "document_idle"
         }
     ]
 }
