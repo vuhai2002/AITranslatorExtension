@@ -166,7 +166,7 @@ function initHoverTranslate() {
         const target = event.target;
 
         // Chỉ dịch nếu hover vào các thẻ có chữ (loại bỏ img, button, input, v.v.)
-        if (!target.matches("h1, h2, h3, h4, h5, h6, h7, a, label, b, header, yt-formatted-string, button, section, td, span")) {
+        if (!target.matches("h1, h2, h3, h4, h5, h6, h7, a, label, b, header, yt-formatted-string, button, section, td, span, p")) {
             hideTooltip();
             return;
         }
@@ -178,7 +178,7 @@ function initHoverTranslate() {
 
         // Kiểm tra xem con trỏ có đang ở trên vùng có chữ hay không
         const text = target.innerText?.trim();
-        if (!text || text.length > 150) return; // Giới hạn chữ dịch
+        if (!text || text.length > 249) return; // Giới hạn chữ dịch
 
         // Lấy vị trí con trỏ chuột trong tọa độ viewport
         const mouseX = event.clientX;
