@@ -316,11 +316,14 @@ function initHoverTranslate() {
                 return;
             }
 
-            // Lấy câu dịch
-            const translatedText =
-                Array.isArray(result) && Array.isArray(result[0]) && Array.isArray(result[0][0]) && result[0][0][0]
-                    ? result[0][0][0]
-                    : "";
+
+            // Lay toan bo phan dich (Google split theo cau) va ghep lai
+            const translatedText = Array.isArray(result) && Array.isArray(result[0])
+                ? result[0]
+                    .map((part) => (Array.isArray(part) && typeof part[0] === "string") ? part[0] : "")
+                    .join("")
+                    .trim()
+                : "";
 
             if (translatedText) {
                 // Lưu bản dịch gần nhất
