@@ -778,4 +778,14 @@ chrome.runtime.onMessage.addListener((message) => {
             div.style.top = `${position.top - rect.height - 10}px`;
         }
     }
+    if (message.action === "translationFailed") {
+        // Hide spinner/icon when the backend responds with a non-200 or errors out
+        const iconToRemove = document.getElementById("translate-icon");
+        if (iconToRemove) {
+            iconToRemove.style.transition = "opacity 0.15s ease-out";
+            iconToRemove.style.opacity = "0";
+            setTimeout(() => iconToRemove.remove(), 150);
+        }
+        translationInProgress = false;
+    }
 });

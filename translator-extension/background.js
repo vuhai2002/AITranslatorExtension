@@ -1,13 +1,11 @@
-// Khởi tạo extension
+// Initialize extension defaults
 chrome.runtime.onInstalled.addListener(() => {
-    // Thiết lập giá trị mặc định
     chrome.storage.sync.set({
-        uiTheme: "light", 
+        uiTheme: "light",
         uiLang: "vi",
         targetLang: "vi"
     });
 
-    // Tạo menu ngữ cảnh
     chrome.contextMenus.create({
         id: "translate",
         title: "Dịch với AI Translator",
@@ -15,7 +13,7 @@ chrome.runtime.onInstalled.addListener(() => {
     });
 });
 
-// Xử lý click vào menu ngữ cảnh
+// Context menu handler
 chrome.contextMenus.onClicked.addListener((info, tab) => {
     if (info.menuItemId === "translate") {
         chrome.scripting.executeScript({
@@ -25,21 +23,28 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     }
 });
 
-// Hàm dịch văn bản được chọn
+// Helper executed in the page to read selection
 function translateSelectedText() {
     const text = window.getSelection().toString();
     if (text) {
-        chrome.runtime.sendMessage({ action: "translate", text: text });
+        chrome.runtime.sendMessage({ action: "translate", text });
     }
 }
 
-// Xử lý yêu cầu dịch
+// Listen for translation requests
 chrome.runtime.onMessage.addListener((message, sender) => {
     if (message.action === "translate") {
         chrome.storage.sync.get(["targetLangName"], (data) => {
             const targetLang = data.targetLangName || "Vietnamese";
+            const tabId = sender?.tab?.id;
 
-            // Gọi đến server API của bạn thay vì OpenAI trực tiếp
+            let failureNotified = false;
+            const notifyFailure = () => {
+                if (failureNotified || !tabId) return;
+                failureNotified = true;
+                chrome.tabs.sendMessage(tabId, { action: "translationFailed" });
+            };
+
             fetch("https://translate.vuhai.me/api/translate", {
                 method: "POST",
                 headers: {
@@ -47,22 +52,35 @@ chrome.runtime.onMessage.addListener((message, sender) => {
                 },
                 body: JSON.stringify({
                     text: message.text,
-                    targetLang: targetLang,
-                    service: "openai" // hoặc "microsoft"
+                    targetLang,
+                    service: "openai" // or "microsoft"
                 })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.translation) {
-                    chrome.tabs.sendMessage(sender.tab.id, { 
-                        action: "showTranslation", 
-                        translation: data.translation,
-                        position: message.position
-                    });
-                }
-            })
-            .catch(error => console.error("Translation error:", error));
+                .then(async (response) => {
+                    if (!response.ok) {
+                        notifyFailure();
+                        throw new Error(`Translation request failed with status ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    if (data.translation && tabId) {
+                        chrome.tabs.sendMessage(tabId, {
+                            action: "showTranslation",
+                            translation: data.translation,
+                            position: message.position
+                        });
+                    } else {
+                        notifyFailure();
+                    }
+                })
+                .catch((error) => {
+                    console.error("Translation error:", error);
+                    notifyFailure();
+                });
         });
-        return true; // Để giữ kết nối mở cho response không đồng bộ
+
+        // Keep the message channel alive for async response
+        return true;
     }
 });
