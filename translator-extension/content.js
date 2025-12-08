@@ -1,6 +1,6 @@
-let currentTheme = 'light';
+﻿let currentTheme = 'light';
 let currentUILang = 'vi';
-let translationInProgress = false; // Đánh dấu xem có yêu cầu dịch đang chạy không
+let translationInProgress = false; // Flag to mark if a translation request is running
 
 const _spinnerKeyframes = document.createElement("style");
 _spinnerKeyframes.textContent = `
@@ -92,7 +92,7 @@ _spinnerKeyframes.textContent = `
 
 document.head.appendChild(_spinnerKeyframes);
 
-// Kiểm tra nếu trang bị chặn
+// Check if the page is blocked
 chrome.storage.sync.get(["hoverTranslate", "blockedSites"], (data) => {
 
     const blockedSites = data.blockedSites || [];
@@ -103,7 +103,7 @@ chrome.storage.sync.get(["hoverTranslate", "blockedSites"], (data) => {
         return;
     }
 
-    // Nếu trang không bị chặn, tiếp tục chạy hover dịch
+    // If the page is not blocked, continue running hover translate
     initHoverTranslate();
 });
 
@@ -113,16 +113,16 @@ function initHoverTranslate() {
     let lastHoveredElement = null;
     let translateTimeout = null;
     let tooltipVisible = false;
-    let lastTranslatedText = { original: "", translated: "" }; // Lưu đoạn dịch gần nhất
-    let lastMouseEvent = null; // Biến mới để lưu vị trí chuột mới nhất
+    let lastTranslatedText = { original: "", translated: "" }; // Save the most recent translation
+    let lastMouseEvent = null; // Store the latest mouse position
 
-    // Cập nhật CSS cho tooltip và mũi tên
+    // Update CSS for the tooltip and arrow
     const style = document.createElement("style");
     style.textContent = `
     #hover-translate-tooltip {
         position: absolute;
-        background: #e3f2fd; /* Xanh nhạt */
-        color: #212121; /* Màu chữ tối */
+        background: #e3f2fd; /* Light blue */
+        color: #212121; /* Dark text */
         font-family: Arial, sans-serif;
         font-size: 14px;
         line-height: 1.4;
@@ -138,7 +138,7 @@ function initHoverTranslate() {
         pointer-events: none;
     }
 
-    /* Mũi tên của tooltip */
+    /* Tooltip arrow */
     #tooltip-arrow {
         position: absolute;
         bottom: -8px;
@@ -156,16 +156,16 @@ function initHoverTranslate() {
     document.head.appendChild(style);
 
     document.addEventListener("scroll", () => {
-        // Khi cuộn trang, ẩn tooltip
+        // Hide tooltip when scrolling
         hideTooltip();
     });
 
     document.addEventListener("mousemove", (event) => {
-        // Luôn cập nhật vị trí chuột mới nhất
+        // Always update the latest mouse position
         lastMouseEvent = event;
         const target = event.target;
 
-        // Chỉ dịch nếu hover vào các thẻ có chữ (loại bỏ img, button, input, v.v.)
+        // Translate only when hovering elements with text (skip img, button, input, etc.)
         if (!target.matches("h1, h2, h3, h4, h5, h6, h7, a, label, b, header, yt-formatted-string, button, section, td, span, p")) {
             hideTooltip();
             return;
@@ -173,18 +173,18 @@ function initHoverTranslate() {
 
         if ((target.tagName === 'SPAN' && target.parentElement && target.parentElement.tagName === 'SPAN') || (target.tagName === 'SPAN' && target.parentElement && target.parentElement.tagName === 'DIV')) {
             hideTooltip();
-            return; // Bỏ qua nếu là span trong span
+            return; // Skip span inside span
         }
 
-        // Kiểm tra xem con trỏ có đang ở trên vùng có chữ hay không
+        // Check if the cursor is over text
         const text = target.innerText?.trim();
-        if (!text || text.length > 249) return; // Giới hạn chữ dịch
+        if (!text || text.length > 249) return; // Limit translation length
 
-        // Lấy vị trí con trỏ chuột trong tọa độ viewport
+        // Get mouse position in viewport coordinates
         const mouseX = event.clientX;
         const mouseY = event.clientY;
 
-        // Kiểm tra xem con trỏ chuột có đang trỏ vào phần tử text node hay không
+        // Check whether the cursor is on a text node
         const isOverText = isMouseOverTextNode(target, mouseX, mouseY);
 
         if (!isOverText) {
@@ -192,7 +192,7 @@ function initHoverTranslate() {
             return;
         }
 
-        // Nếu di chuột trong cùng một phần tử, chỉ di chuyển tooltip mà không dịch lại
+        // If hovering the same element, just move the tooltip without re-translating
         if (lastHoveredElement === target) {
             updateTooltipPosition(event);
             return;
@@ -200,32 +200,32 @@ function initHoverTranslate() {
 
         lastHoveredElement = target;
 
-        // Thêm sự kiện mouseout cho phần tử này để ẩn tooltip khi di chuột ra ngoài
+        // Add mouseout handler to hide the tooltip when leaving the element
         target.addEventListener("mouseout", handleMouseOut, { once: true })
 
-        // Nếu văn bản này trùng với lần dịch trước đó, hiển thị ngay lập tức
+        // If this text matches the previous translation, show immediately
         if (lastTranslatedText.original === text && lastTranslatedText.translated) {
             showTooltip(event, lastTranslatedText.translated);
             return;
         }
 
-        // Nếu chưa dịch, gọi API sau một khoảng thời gian
+        // If not translated yet, call the API after a short delay
         clearTimeout(translateTimeout);
 
         try {
             translateTimeout = setTimeout(() => {
                 chrome.storage.sync.get(["targetLangCode"], (data) => {
-                    const targetLang = data.targetLangCode || "vi"; // Ngôn ngữ mặc định nếu chưa lưu
-                    // Sử dụng vị trí chuột hiện tại khi gọi API, không phải vị trí ban đầu
+                    const targetLang = data.targetLangCode || "vi"; // Default language if none saved
+                    // Use the current mouse position when calling the API
                     fetchTranslation(text, targetLang, lastMouseEvent);
                 });
             }, 200);
         } catch (error) { }
     });
 
-    // Hàm kiểm tra xem con trỏ chuột có đang nằm trên text node hay không
+    // Check whether the cursor is over a text node
     function isMouseOverTextNode(element, mouseX, mouseY) {
-        // Lấy tất cả các text node trong phần tử
+        // Get all text nodes in the element
         const walker = document.createTreeWalker(
             element,
             NodeFilter.SHOW_TEXT,
@@ -233,12 +233,12 @@ function initHoverTranslate() {
             false
         );
 
-        // Khoảng dung sai để mở rộng vùng phát hiện (px)
-        const tolerance = 5; // Thêm 5px xung quanh mỗi text node
+        // Tolerance to expand detection area (px)
+        const tolerance = 5; // Add 5px around each text node
 
         let textNode;
         while (textNode = walker.nextNode()) {
-            // Bỏ qua các node text rỗng hoặc chỉ chứa khoảng trắng
+            // Skip empty or whitespace-only nodes
             if (!textNode.textContent.trim()) continue;
 
             try {
@@ -247,7 +247,7 @@ function initHoverTranslate() {
 
                 const rects = range.getClientRects();
 
-                // Kiểm tra xem con trỏ chuột có nằm trong một trong các rects (đã mở rộng) hay không
+                // Check if the cursor is inside any expanded rect
                 for (let i = 0; i < rects.length; i++) {
                     const rect = rects[i];
                     if (
@@ -266,21 +266,21 @@ function initHoverTranslate() {
     }
 
     document.documentElement.addEventListener('mouseleave', () => {
-        // Khi chuột rời khỏi toàn bộ trang, ẩn tooltip và xóa timeout
+        // When the mouse leaves the page, hide the tooltip and clear the timeout
         hideTooltip();
         clearTimeout(translateTimeout);
-        lastHoveredElement = null; // Đảm bảo reset
+        lastHoveredElement = null; // Ensure reset
     });
 
-    // Thêm hàm xử lý khi di chuột ra khỏi phần tử
+    // Handle when the mouse leaves the element
     function handleMouseOut(event) {
-        // Xác minh rằng con trỏ thực sự rời khỏi phần tử (không phải vào phần tử con)
+        // Confirm the pointer actually left (not entering a child)
         const relatedTarget = event.relatedTarget;
         if (relatedTarget && event.currentTarget.contains(relatedTarget)) {
-            return; // Nếu di chuyển vào phần tử con, không làm gì
+            return; // Do nothing if moving into a child element
         }
 
-        // Nếu con trỏ thực sự rời khỏi phần tử, ẩn tooltip
+        // If the pointer truly left the element, hide the tooltip
         hideTooltip();
     }
 
@@ -302,22 +302,22 @@ function initHoverTranslate() {
             const response = await fetch(url);
             const result = await response.json();
 
-            // Lấy code ngôn ngữ nguồn (auto-detected). Thông thường ở result[2].
+            // Get source language code (auto-detected). Usually result[2].
             const detectedLangRaw = Array.isArray(result) && typeof result[2] === "string" ? result[2] : null;
 
-            // Hàm chuẩn hóa mã ngôn ngữ (vi, en-US -> vi, en)
+            // Normalize language code (vi, en-US -> vi, en)
             const norm = (s) => (s || "").toLowerCase().split("-")[0];
 
-            // Nếu ngôn ngữ nguồn trùng với targetLang => không hiển thị tooltip
+            // If source language matches targetLang => do not show tooltip
             if (norm(detectedLangRaw) === norm(targetLang)) {
-                // Ghi nhớ lần cuối để lần sau không “show lại”
+                // Remember the last attempt so it is not shown again
                 lastTranslatedText = { original: text, translated: "" };
                 hideTooltip();
                 return;
             }
 
 
-            // Lay toan bo phan dich (Google split theo cau) va ghep lai
+            // Get all translated parts (Google splits by sentence) and combine them
             const translatedText = Array.isArray(result) && Array.isArray(result[0])
                 ? result[0]
                     .map((part) => (Array.isArray(part) && typeof part[0] === "string") ? part[0] : "")
@@ -326,22 +326,22 @@ function initHoverTranslate() {
                 : "";
 
             if (translatedText) {
-                // Lưu bản dịch gần nhất
+                // Save the most recent translation
                 lastTranslatedText = { original: text, translated: translatedText };
 
-                // Nếu chuột vẫn trên cùng một phần tử thì hiển thị kết quả
+                // If the mouse is still on the same element, show the result
                 if (lastHoveredElement && lastHoveredElement.innerText?.trim() === text) {
-                    // Sử dụng vị trí chuột hiện tại thay vì vị trí khi bắt đầu dịch
+                    // Use the latest mouse position instead of the initial one
                     const currentMouseEvent = lastMouseEvent || event;
                     showTooltip(currentMouseEvent, translatedText);
                 }
             } else {
-                // Không lấy được bản dịch — ẩn tooltip
+                // No translation retrieved — hide tooltip
                 lastTranslatedText = { original: text, translated: "" };
                 hideTooltip();
             }
         } catch (error) { 
-            // Lỗi mạng/parse — ẩn tooltip để tránh treo UI
+            // Network/parse error — hide tooltip to avoid UI hanging
             hideTooltip();
         }
     }
@@ -353,18 +353,18 @@ function initHoverTranslate() {
             const tooltipWidth = tooltip.offsetWidth;
             const tooltipHeight = tooltip.offsetHeight;
             const offsetX = 5;
-            const offsetY = 14; // Khoảng cách mặc định
+            const offsetY = 14; // Default distance
 
-            // Tính toán vị trí mặc định (hiển thị phía trên con trỏ)
+            // Default position (show above cursor)
             let posX = event.pageX - tooltipWidth / 2;
             let posY = event.pageY - tooltipHeight - offsetY;
 
-            // Kiểm tra xem tooltip có vượt khỏi cạnh trên không
+            // Check if tooltip overflows the top edge
             if (posY < window.scrollY) {
-                // Nếu vượt khỏi cạnh trên, hiển thị tooltip phía dưới con trỏ
+                // If it overflows top, show tooltip below the cursor
                 posY = event.pageY + offsetY + 8;
 
-                // Di chuyển mũi tên lên trên đầu tooltip
+                // Move the arrow to the top of the tooltip
                 const arrow = tooltip.querySelector("#tooltip-arrow");
                 if (arrow) {
                     arrow.style.top = "-6px";
@@ -375,7 +375,7 @@ function initHoverTranslate() {
                     arrow.style.marginBottom = "0";
                 }
             } else {
-                // Trường hợp mặc định, hiển thị tooltip phía trên con trỏ
+                // Default case: show tooltip above the cursor
                 const arrow = tooltip.querySelector("#tooltip-arrow");
                 if (arrow) {
                     arrow.style.bottom = "-6px";
@@ -387,12 +387,12 @@ function initHoverTranslate() {
                 }
             }
 
-            // Kiểm tra xem tooltip có vượt khỏi cạnh trái không
+            // Check if tooltip overflows the left edge
             if (posX < window.scrollX) {
                 posX = window.scrollX + 5;
             }
 
-            // Kiểm tra xem tooltip có vượt khỏi cạnh phải không
+            // Check if tooltip overflows the right edge
             if (posX + tooltipWidth > window.scrollX + window.innerWidth) {
                 posX = window.scrollX + window.innerWidth - tooltipWidth - 5;
             }
@@ -413,7 +413,7 @@ function initHoverTranslate() {
         tooltip.querySelector("#tooltip-text").textContent = translatedText;
         updateTooltipPosition(event);
 
-        // Thêm setTimeout để có hiệu ứng mượt mà khi hiển thị
+        // Add setTimeout for smooth show effect
         setTimeout(() => {
             tooltip.style.opacity = "1";
             tooltipVisible = true;
@@ -430,13 +430,13 @@ function initHoverTranslate() {
     }
 }
 
-// Lấy giá trị từ storage khi khởi tạo
+// Get values from storage on initialization
 chrome.storage.sync.get(['uiTheme', 'uiLang'], (data) => {
     currentTheme = data.uiTheme || 'light';
     currentUILang = data.uiLang || 'vi';
 });
 
-// Lắng nghe thay đổi storage
+// Listen for storage changes
 chrome.storage.onChanged.addListener((changes) => {
     if (changes.uiTheme) currentTheme = changes.uiTheme.newValue;
     if (changes.uiLang) currentUILang = changes.uiLang.newValue;
@@ -459,20 +459,20 @@ document.addEventListener("mouseup", (e) => {
             // Attempt to remove any existing icon if the selection is lost
             const oldIcon = document.getElementById("translate-icon");
             if (oldIcon && e.target !== oldIcon && !translationInProgress) {
-                // Sử dụng handleOutsideClick sẽ tốt hơn, tạm thời comment dòng remove này
+                // Using handleOutsideClick would be better; temporarily comment this remove line
                 // oldIcon.remove();
             }
             return; // Exit early
         }
 
-        // Xóa icon cũ *chỉ khi* tạo icon mới (đảm bảo không xóa spinner)
+        // Remove old icon *only when* creating a new icon (ensure spinner is not removed)
         const oldIcon = document.getElementById("translate-icon");
         if (oldIcon) {
             oldIcon.remove();
         }
 
         const range = selection.getRangeAt(0);
-        const rect = range.getBoundingClientRect(); // Lấy vị trí của vùng bôi đen
+        const rect = range.getBoundingClientRect(); // Get the position of the highlighted area
 
         const icon = document.createElement("div"); // Changed from img to div
         icon.id = "translate-icon";
@@ -583,45 +583,45 @@ if (!document.head.contains(_spinnerKeyframes)) {
     document.head.appendChild(_spinnerKeyframes);
 }
 
-// Xử lý đoạn dịch hiển thị và ẩn khi click ra ngoài
+// Handle showing and hiding translation when clicking outside
 chrome.runtime.onMessage.addListener((message) => {
 
     if (message.action === "showTranslation") {
-        // Xóa kết quả cũ trước khi hiển thị mới
+        // Remove the previous result before showing a new one
         const oldTranslation = document.getElementById("ai-translation");
         if (oldTranslation) oldTranslation.remove();
 
-        // --- Thêm đoạn code này để xóa icon ---
+        // --- Add this block to remove the icon ---
         const iconToRemove = document.getElementById("translate-icon");
         if (iconToRemove) {
-            iconToRemove.style.transition = "opacity 0.15s ease-out"; // Thêm transition cho hiệu ứng mờ dần
-            iconToRemove.style.opacity = "0"; // Bắt đầu làm mờ icon
+            iconToRemove.style.transition = "opacity 0.15s ease-out"; // Add transition for fade-out effect
+            iconToRemove.style.opacity = "0"; // Start fading the icon
             setTimeout(() => {
-                iconToRemove.remove(); // Xóa icon sau khi hiệu ứng hoàn tất
-            }, 150); // Thời gian khớp với transition
+                iconToRemove.remove(); // Remove icon after the effect completes
+            }, 150); // Duration matches the transition
         }
-        // --- Kết thúc đoạn code thêm ---
+        // --- End of added block ---
 
-        // Cho phép tạo icon mới lần sau
+        // Allow creating a new icon next time
         //translationInProgress = false;
 
-        // Sử dụng vị trí đã lưu từ click vào icon
+        // Use the stored position from the icon click
         const position = message.position;
 
-        // Tạo container cho popup dịch
+        // Create container for translation popup
         const div = document.createElement("div");
         div.id = "ai-translation";
 
-        // Tạo header
+        // Create header
         const header = document.createElement("div");
         header.className = "translation-header";
 
-        // Logo và tiêu đề
+        // Logo and title
         const title = document.createElement("div");
         title.className = "translation-title";
         title.innerHTML = '<img src="' + chrome.runtime.getURL("icon.png") + '" class="translation-logo"> AI Translation';
 
-        // Nút đóng
+        // Close button
         const closeButton = document.createElement("button");
         closeButton.className = "translation-close";
         closeButton.innerHTML = "×";
@@ -636,7 +636,7 @@ chrome.runtime.onMessage.addListener((message) => {
         header.appendChild(closeButton);
         div.appendChild(header);
 
-        // Nội dung bản dịch - Thêm container riêng cho phần scrollable
+        // Translation content - separate scrollable container
         const contentContainer = document.createElement("div");
         contentContainer.className = "translation-content-container";
 
@@ -647,7 +647,7 @@ chrome.runtime.onMessage.addListener((message) => {
         contentContainer.appendChild(content);
         div.appendChild(contentContainer);
 
-        // Style cho container chính
+        // Styling for main container
         div.style.position = "absolute";
         div.style.left = `${position.left}px`;
         div.style.top = `${position.bottom + 10}px`;
@@ -665,9 +665,9 @@ chrome.runtime.onMessage.addListener((message) => {
         div.style.transition = "opacity 0.3s ease, transform 0.3s ease";
         div.style.opacity = "0";
         div.style.transform = "scale(0.95)";
-        div.style.overflow = "hidden"; // Container chính không scroll
+        div.style.overflow = "hidden"; // Main container does not scroll
 
-        // Style cho header
+        // Styling for header
         header.style.padding = "10px 15px";
         header.style.backgroundColor = "#4a6bef";
         header.style.color = "white";
@@ -675,16 +675,16 @@ chrome.runtime.onMessage.addListener((message) => {
         header.style.justifyContent = "space-between";
         header.style.alignItems = "center";
         header.style.borderBottom = "1px solid #3a57d8";
-        header.style.flexShrink = "0"; // Không co lại
+        header.style.flexShrink = "0"; // Do not shrink
 
-        // Style cho title
+        // Styling for title
         title.style.display = "flex";
         title.style.alignItems = "center";
         title.style.fontWeight = "bold";
         title.style.fontSize = "14px";
-        title.style.whiteSpace = "nowrap"; // Ngăn xuống dòng
+        title.style.whiteSpace = "nowrap"; // Prevent wrapping
 
-        // Style cho logo
+        // Styling for logo
         const logo = title.querySelector(".translation-logo");
         if (logo) {
             logo.style.width = "18px";
@@ -695,7 +695,7 @@ chrome.runtime.onMessage.addListener((message) => {
             logo.style.padding = "2px";
         }
 
-        // Style cho nút đóng
+        // Styling for close button
         closeButton.style.background = "none";
         closeButton.style.border = "none";
         closeButton.style.color = "white";
@@ -712,21 +712,21 @@ chrome.runtime.onMessage.addListener((message) => {
         closeButton.style.borderRadius = "50%";
         closeButton.style.transition = "background-color 0.2s";
 
-        // Style cho container nội dung (phần scrollable)
-        contentContainer.style.maxHeight = "250px"; // Giới hạn chiều cao
-        contentContainer.style.overflowY = "auto"; // Cho phép cuộn dọc
-        contentContainer.style.overflowX = "hidden"; // Không cuộn ngang
+        // Styling for content container (scrollable part)
+        contentContainer.style.maxHeight = "250px"; // Limit height
+        contentContainer.style.overflowY = "auto"; // Allow vertical scrolling
+        contentContainer.style.overflowX = "hidden"; // Disable horizontal scroll
         contentContainer.style.padding = "15px";
 
-        // Style cho content
+        // Styling for content
         content.style.fontSize = "16px";
-        content.style.wordBreak = "break-word"; // Xử lý từ dài
+        content.style.wordBreak = "break-word"; // Handle long words
         content.style.whiteSpace = "pre-wrap";
         content.style.fontWeight = "400";
 
         document.body.appendChild(div);
 
-        // Thêm style cho scrollbar Chrome
+        // Add scrollbar style for Chrome
         const scrollbarStyle = document.createElement('style');
         scrollbarStyle.textContent = `
             .translation-content-container::-webkit-scrollbar {
@@ -746,15 +746,15 @@ chrome.runtime.onMessage.addListener((message) => {
         `;
         document.head.appendChild(scrollbarStyle);
 
-        // Hiệu ứng hiện lên sau khi thêm vào DOM
+        // Show effect after adding to DOM
         setTimeout(() => {
             div.style.opacity = "1";
             div.style.transform = "scale(1)";
-            // giờ popup đã hiện xong animation → mới reset flag
+            // Popup animation finished → now reset flag
             translationInProgress = false;
         }, 10);
 
-        // Xử lý click ra ngoài
+        // Handle outside click
         document.addEventListener("mousedown", (clickEvent) => {
             if (clickEvent.target !== div && !div.contains(clickEvent.target)) {
                 div.style.opacity = "0";
@@ -763,17 +763,17 @@ chrome.runtime.onMessage.addListener((message) => {
             }
         }, { once: true });
 
-        // Đảm bảo popup hiển thị trong viewport
+        // Ensure popup is inside viewport
         const rect = div.getBoundingClientRect();
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
 
-        // Kiểm tra nếu popup vượt quá bên phải màn hình
+        // Check if popup goes beyond the right edge
         if (rect.right > viewportWidth) {
             div.style.left = `${Math.max(0, viewportWidth - rect.width - 20)}px`;
         }
 
-        // Kiểm tra nếu popup vượt quá bên dưới màn hình
+        // Check if popup goes beyond the bottom edge
         if (rect.bottom > viewportHeight) {
             div.style.top = `${position.top - rect.height - 10}px`;
         }
