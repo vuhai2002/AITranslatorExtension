@@ -34,8 +34,8 @@ function translateSelectedText() {
 // Listen for translation requests
 chrome.runtime.onMessage.addListener((message, sender) => {
     if (message.action === "translate") {
-        chrome.storage.sync.get(["targetLangName"], (data) => {
-            const targetLang = data.targetLangName || "Vietnamese";
+        chrome.storage.sync.get(["targetLangCode"], (data) => {
+            const targetLang = data.targetLangCode || "vi";
             const tabId = sender?.tab?.id;
 
             let failureNotified = false;
@@ -53,7 +53,7 @@ chrome.runtime.onMessage.addListener((message, sender) => {
                 body: JSON.stringify({
                     text: message.text,
                     targetLang,
-                    service: "openai" // or "microsoft"
+                    service: "microsoft" // or "openai"
                 })
             })
                 .then(async (response) => {
