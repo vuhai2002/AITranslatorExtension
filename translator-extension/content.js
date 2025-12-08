@@ -2,6 +2,17 @@
 let currentUILang = 'vi';
 let translationInProgress = false; // Flag to mark if a translation request is running
 
+// Helper to check whether an element (or its parent) is part of our own UI
+function isWithinTranslationUI(element) {
+    const el = element instanceof Element ? element : element?.parentElement;
+    if (!el) return false;
+    return Boolean(
+        el.closest('#ai-translation') ||
+        el.closest('#translate-icon') ||
+        el.closest('#hover-translate-tooltip')
+    );
+}
+
 const _spinnerKeyframes = document.createElement("style");
 _spinnerKeyframes.textContent = `
 .lds-spinner,
@@ -164,6 +175,12 @@ function initHoverTranslate() {
         // Always update the latest mouse position
         lastMouseEvent = event;
         const target = event.target;
+
+        // Do not show tooltip when hovering our own UI (popup, icon, tooltip)
+        if (isWithinTranslationUI(target)) {
+            hideTooltip();
+            return;
+        }
 
         // Translate only when hovering elements with text (skip img, button, input, etc.)
         if (!target.matches("h1, h2, h3, h4, h5, h6, h7, a, label, b, header, yt-formatted-string, button, section, td, span, p")) {
@@ -452,6 +469,14 @@ document.addEventListener("mouseup", (e) => {
 
         const selection = window.getSelection();
         const selectedText = selection.toString().trim();
+
+        // Skip creating icons when selecting inside our popup/tooltip
+        const selectionInUI = isWithinTranslationUI(e.target) ||
+            isWithinTranslationUI(selection.anchorNode) ||
+            isWithinTranslationUI(selection.focusNode);
+        if (selectionInUI) {
+            return;
+        }
 
         // 1. Check if the selection is collapsed (just a cursor) OR if the trimmed text is empty.
         //    If either is true, it's not a valid selection for translation.
