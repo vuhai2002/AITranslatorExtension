@@ -13,8 +13,8 @@ _spinnerKeyframes.textContent = `
   color: currentColor;
   display: inline-block;
   position: relative;
-  width: 28px;
-  height: 28px;
+  width: 25px;
+  height: 25px;
   color: #4a6bef;
 }
 .lds-spinner div {
@@ -479,8 +479,8 @@ document.addEventListener("mouseup", (e) => {
         icon.style.position = "absolute";
         icon.style.left = `${window.scrollX + rect.left + (rect.width / 2) - 14}px`; // Centered
         icon.style.top = `${window.scrollY + rect.bottom + 5}px`;
-        icon.style.width = "28px";
-        icon.style.height = "28px";
+        icon.style.width = "26px";
+        icon.style.height = "26px";
         icon.style.cursor = "pointer";
         icon.style.transition = "transform 0.2s ease, opacity 0.15s ease";
         icon.style.zIndex = "2147483647";
