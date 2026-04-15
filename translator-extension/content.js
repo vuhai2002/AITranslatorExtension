@@ -303,18 +303,8 @@ function initHoverTranslate() {
 
     async function fetchTranslation(text, targetLang, event) {
         try {
-            // const response = await fetch("https://translate.vuhai.me/api/translate", {
-            //     method: "POST",
-            //     headers: {
-            //         "Content-Type": "application/json"
-            //     },
-            //     body: JSON.stringify({
-            //         text: text,
-            //         targetLang: targetLang,
-            //         service: "microsoft" // Sử dụng Microsoft Translator
-            //     })
-            // });
-
+            // Hover tooltip uses Google's unofficial endpoint for speed/zero-auth.
+            // Selection + context-menu translations go through the AI Translator backend (see background.js).
             const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
             const response = await fetch(url);
             const result = await response.json();

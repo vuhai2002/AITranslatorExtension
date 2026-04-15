@@ -52,8 +52,7 @@ chrome.runtime.onMessage.addListener((message, sender) => {
                 },
                 body: JSON.stringify({
                     text: message.text,
-                    targetLang,
-                    service: "microsoft" // or "openai"
+                    targetLang
                 })
             })
                 .then(async (response) => {

@@ -80,7 +80,7 @@ Extension hỗ trợ dịch sang/từ hơn **50 ngôn ngữ** bao gồm:
 ├─────────────────────────────────────┤
 │  ℹ️ Chọn văn bản và nhấp vào biểu   │
 │  tượng dịch để dịch tức thì        │
-│  Translate model: gpt-4.1 nano     │
+│  Model: AI Translator GPT 5.4      │
 ├─────────────────────────────────────┤
 │         [  Lưu cài đặt  ]          │
 └─────────────────────────────────────┘
@@ -181,7 +181,7 @@ Extension sử dụng 2 nguồn dịch:
 | Service | Endpoint | Mô Tả |
 |---------|----------|-------|
 | **Google Translate** | `translate.googleapis.com` | Dùng cho hover translate (miễn phí, nhanh) |
-| **Custom API** | `translate.vuhai.me` | Dùng cho select translate (GPT-4.1 nano, Microsoft Translator) |
+| **AI Translator GPT** | `translate.vuhai.me` | Dùng cho select/context menu translate (mô hình AI Translator GPT 5.4) |
 
 ---
 
@@ -256,7 +256,7 @@ chrome.tabs.reload()
 | API | URL | Mục Đích |
 |-----|-----|----------|
 | Google Translate (Unofficial) | `translate.googleapis.com/translate_a/single` | Hover translate |
-| Custom Translation API | `translate.vuhai.me/api/translate` | Select translate với GPT-4.1 |
+| AI Translator GPT | `translate.vuhai.me/api/translate` | Select / context menu translate (AI Translator GPT 5.4) |
 
 ---
 
