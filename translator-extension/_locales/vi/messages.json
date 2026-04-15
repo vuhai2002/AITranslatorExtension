@@ -1,0 +1,18 @@
+{
+  "extensionName": {
+    "message": "AI Translator - Dịch Thông Minh Bằng AI GPT",
+    "description": "Tên extension hiển thị trên Chrome Web Store và thanh công cụ trình duyệt."
+  },
+  "extensionDescription": {
+    "message": "Dịch nhanh văn bản với AI. Hover để dịch tức thì, bôi đen để dịch nhanh, hỗ trợ UI Tiếng Việt & Dark Mode.",
+    "description": "Mô tả ngắn hiển thị trên Chrome Web Store (tối đa 132 ký tự)."
+  },
+  "actionTitle": {
+    "message": "AI Translator",
+    "description": "Tooltip khi hover chuột lên icon trên thanh công cụ."
+  },
+  "contextMenuTranslate": {
+    "message": "Dịch với AI Translator",
+    "description": "Mục menu chuột phải xuất hiện trên văn bản đã chọn."
+  }
+}

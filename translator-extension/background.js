@@ -8,7 +8,7 @@ chrome.runtime.onInstalled.addListener(() => {
 
     chrome.contextMenus.create({
         id: "translate",
-        title: "Dịch với AI Translator",
+        title: chrome.i18n.getMessage("contextMenuTranslate"),
         contexts: ["selection"]
     });
 });

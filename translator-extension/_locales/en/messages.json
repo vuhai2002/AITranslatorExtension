@@ -1,0 +1,18 @@
+{
+  "extensionName": {
+    "message": "AI Translator - Smart AI Translation (Hover, Select, Context Menu)",
+    "description": "Extension name shown in Chrome Web Store and browser toolbar."
+  },
+  "extensionDescription": {
+    "message": "Instant AI translator. Hover, select, or right-click to translate any text. 50+ languages, dark mode, bilingual UI.",
+    "description": "Short description shown in Chrome Web Store listing (max 132 chars)."
+  },
+  "actionTitle": {
+    "message": "AI Translator",
+    "description": "Tooltip shown when hovering the toolbar icon."
+  },
+  "contextMenuTranslate": {
+    "message": "Translate with AI Translator",
+    "description": "Right-click menu entry that appears on selected text."
+  }
+}
