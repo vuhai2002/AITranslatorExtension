@@ -181,7 +181,7 @@ Extension sử dụng 2 nguồn dịch:
 | Service | Endpoint | Mô Tả |
 |---------|----------|-------|
 | **Google Translate** | `translate.googleapis.com` | Dùng cho hover translate (miễn phí, nhanh) |
-| **AI Translator GPT** | `translate.vuhai.me` | Dùng cho select/context menu translate (mô hình AI Translator GPT 5.4) |
+| **AI Translator GPT** | `translate.vuhai.io.vn` | Dùng cho select/context menu translate (mô hình AI Translator GPT 5.4) |
 
 ---
 
@@ -256,7 +256,7 @@ chrome.tabs.reload()
 | API | URL | Mục Đích |
 |-----|-----|----------|
 | Google Translate (Unofficial) | `translate.googleapis.com/translate_a/single` | Hover translate |
-| AI Translator GPT | `translate.vuhai.me/api/translate` | Select / context menu translate (AI Translator GPT 5.4) |
+| AI Translator GPT | `translate.vuhai.io.vn/api/translate` | Select / context menu translate (AI Translator GPT 5.4) |
 
 ---
 
@@ -356,8 +356,7 @@ Dự án này được phát hành dưới giấy phép **MIT License**.
 
 **Vũ Hải**
 
-- 🌐 Website: [vuhai.me](https://vuhai.me)
-- 📧 Email: contact@vuhai.me
+- 🌐 Website: [vuhai.io.vn](https://vuhai.io.vn)
 - 🐙 GitHub: [@vuhai2002](https://github.com/vuhai2002)
 
 ---

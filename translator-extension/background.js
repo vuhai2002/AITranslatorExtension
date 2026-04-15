@@ -45,7 +45,7 @@ chrome.runtime.onMessage.addListener((message, sender) => {
                 chrome.tabs.sendMessage(tabId, { action: "translationFailed" });
             };
 
-            fetch("https://translate.vuhai.me/api/translate", {
+            fetch("https://translate.vuhai.io.vn/api/translate", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
